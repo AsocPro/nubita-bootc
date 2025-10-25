@@ -1,0 +1,211 @@
+# kube-prometheus-stack HelmChart for k3s Helm Controller
+# Complete monitoring stack with Prometheus, Grafana, and Alertmanager
+# See: https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: kube-prometheus-stack
+  namespace: kube-system
+spec:
+  repo: https://prometheus-community.github.io/helm-charts
+  chart: kube-prometheus-stack
+  targetNamespace: monitoring
+  createNamespace: true
+
+  # Prometheus and Grafana configuration
+  valuesContent: |-
+    # Grafana configuration
+    grafana:
+      enabled: true
+
+      # Admin credentials (change these!)
+      adminPassword: admin
+
+      # Persistence for dashboards and data
+      persistence:
+        enabled: true
+        storageClassName: longhorn
+        size: 5Gi
+        accessModes:
+          - ReadWriteOnce
+
+      # Ingress with automatic TLS
+      ingress:
+        enabled: true
+        ingressClassName: traefik
+        annotations:
+          cert-manager.io/cluster-issuer: step-ca
+        hosts:
+          - grafana.local
+        tls:
+          - secretName: grafana-tls
+            hosts:
+              - grafana.local
+
+      # Resources for home server
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          cpu: 200m
+          memory: 256Mi
+
+      # Default dashboards
+      defaultDashboardsEnabled: true
+      defaultDashboardsTimezone: UTC
+
+      # Data sources
+      datasources:
+        datasources.yaml:
+          apiVersion: 1
+          datasources:
+          - name: Prometheus
+            type: prometheus
+            url: http://kube-prometheus-stack-prometheus:9090
+            access: proxy
+            isDefault: true
+
+      # Grafana plugins
+      plugins:
+        - grafana-piechart-panel
+        - grafana-clock-panel
+
+    # Prometheus configuration
+    prometheus:
+      enabled: true
+
+      prometheusSpec:
+        # Retention period
+        retention: 15d
+        retentionSize: "10GB"
+
+        # Storage
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: longhorn
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 15Gi
+
+        # Resources for home server
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
+
+        # Service monitor selector
+        # This allows Prometheus to discover all ServiceMonitors
+        serviceMonitorSelectorNilUsesHelmValues: false
+        podMonitorSelectorNilUsesHelmValues: false
+
+        # Scrape interval
+        scrapeInterval: 30s
+        evaluationInterval: 30s
+
+        # Enable admin API for management
+        enableAdminAPI: false
+
+      # Ingress for Prometheus UI (optional)
+      ingress:
+        enabled: true
+        ingressClassName: traefik
+        annotations:
+          cert-manager.io/cluster-issuer: step-ca
+        hosts:
+          - prometheus.local
+        tls:
+          - secretName: prometheus-tls
+            hosts:
+              - prometheus.local
+
+    # Alertmanager configuration
+    alertmanager:
+      enabled: true
+
+      alertmanagerSpec:
+        # Storage
+        storage:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: longhorn
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 2Gi
+
+        # Resources
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            cpu: 50m
+            memory: 128Mi
+
+      # Ingress for Alertmanager UI (optional)
+      ingress:
+        enabled: true
+        ingressClassName: traefik
+        annotations:
+          cert-manager.io/cluster-issuer: step-ca
+        hosts:
+          - alertmanager.local
+        tls:
+          - secretName: alertmanager-tls
+            hosts:
+              - alertmanager.local
+
+    # Prometheus Operator configuration
+    prometheusOperator:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          cpu: 100m
+          memory: 128Mi
+
+    # Node Exporter - collects node metrics
+    nodeExporter:
+      enabled: true
+
+    # kube-state-metrics - collects Kubernetes object metrics
+    kubeStateMetrics:
+      enabled: true
+
+    # Default alert rules
+    defaultRules:
+      create: true
+      rules:
+        alertmanager: true
+        etcd: false  # k3s doesn't expose etcd metrics by default
+        configReloaders: true
+        general: true
+        k8s: true
+        kubeApiserverAvailability: true
+        kubeApiserverSlos: true
+        kubeControllerManager: false  # k3s embeds this
+        kubelet: true
+        kubeProxy: false  # k3s uses kube-proxy differently
+        kubePrometheusGeneral: true
+        kubePrometheusNodeRecording: true
+        kubernetesApps: true
+        kubernetesResources: true
+        kubernetesStorage: true
+        kubernetesSystem: true
+        kubeSchedulerAlerting: false  # k3s embeds this
+        kubeSchedulerRecording: false  # k3s embeds this
+        kubeStateMetrics: true
+        network: true
+        node: true
+        nodeExporterAlerting: true
+        nodeExporterRecording: true
+        prometheus: true
+        prometheusOperator: true

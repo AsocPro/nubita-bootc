@@ -8,7 +8,7 @@ Building a bootc-based immutable OS image hosting a k3s Kubernetes cluster for h
 ## Current Status
 
 **Last Updated**: 2025-10-25
-**Current Phase**: Phase 3 - Networking and Security
+**Current Phase**: Phase 4 - Monitoring and Observability
 **Status**: ✅ Complete (ready for deployment)
 
 ## Implementation Progress
@@ -91,15 +91,30 @@ Building a bootc-based immutable OS image hosting a k3s Kubernetes cluster for h
 ---
 
 ### Phase 4: Monitoring and Observability (Core Infrastructure)
-**Status**: ⚪ Not Started
+**Status**: ✅ Complete (ready for deployment)
 **Goal**: Basic monitoring with Prometheus and Grafana
+**Completed**: 2025-10-25
 
 **Tasks**:
-- [ ] Deploy kube-prometheus-stack via Helm
-- [ ] Enable Grafana with default dashboards
-- [ ] Configure Prometheus service monitors
-- [ ] Set up basic alerts
-- [ ] Test metrics collection and visualization
+- [x] Create kube-prometheus-stack HelmChart
+- [x] Configure Grafana with automatic HTTPS and persistence
+- [x] Configure Prometheus with 15-day retention and Longhorn storage
+- [x] Configure Alertmanager with persistence
+- [x] Enable default dashboards and alert rules
+- [x] Configure automatic metric discovery (ServiceMonitors)
+- [x] Comprehensive documentation (PHASE4-MONITORING.md)
+
+**Files Created**:
+- manifests/kube-prometheus-stack/helmchart.yaml (k3s HelmChart CRD)
+- manifests/kube-prometheus-stack/README.md
+- docs/PHASE4-MONITORING.md
+
+**Containerfile Updated**:
+- Copies Phase 4 manifests to /var/lib/rancher/k3s/server/manifests/
+- Auto-deployed by k3s on boot
+- Grafana accessible at https://grafana.local
+- Prometheus accessible at https://prometheus.local
+- Alertmanager accessible at https://alertmanager.local
 
 ---
 
@@ -161,7 +176,7 @@ Building a bootc-based immutable OS image hosting a k3s Kubernetes cluster for h
 ### Kubernetes Manifests
 - [x] Phase 2: Longhorn HelmChart, backup secret template
 - [x] Phase 3: cert-manager HelmChart, step-ca HelmChart, ClusterIssuer
-- [ ] Phase 4: kube-prometheus-stack values.yaml
+- [x] Phase 4: kube-prometheus-stack HelmChart
 - [ ] Phase 5: Authentik Helm values.yaml
 - [ ] Phase 6: Gitea, Vaultwarden Helm values.yaml
 - [ ] Phase 7: Home Assistant Helm values.yaml
@@ -204,11 +219,15 @@ _None at this time_
 1. ✅ Complete Phase 1: Base cluster setup (code complete)
 2. ✅ Complete Phase 2: Longhorn storage manifests (GitOps auto-deploy)
 3. ✅ Complete Phase 3: TLS with cert-manager and step-ca (GitOps auto-deploy)
-4. Build and deploy bootc image to validate Phases 1-3 (see docs/VALIDATION.md)
-5. Verify automatic deployment of Longhorn, cert-manager, step-ca
-6. Test Longhorn UI with automatic HTTPS (https://longhorn.local)
-7. Begin Phase 4: Prometheus and Grafana for monitoring
-8. Test immutable OS update/rollback with ostree
+4. ✅ Complete Phase 4: Monitoring with Prometheus and Grafana (GitOps auto-deploy)
+5. Build and deploy bootc image to validate Phases 1-4 (see docs/VALIDATION.md)
+6. Verify automatic deployment of all services
+7. Test UIs with automatic HTTPS:
+   - https://longhorn.local
+   - https://grafana.local
+   - https://prometheus.local
+8. Begin Phase 5: Authentik for SSO/LDAP authentication
+9. Test immutable OS update/rollback with ostree
 
 ---
 
@@ -266,4 +285,16 @@ _None at this time_
   - Root CA: 10 years, Intermediate CA: 5 years
   - Comprehensive documentation (PHASE3-TLS.md)
   - All manifests baked into bootc image for GitOps deployment
-- Ready for Phase 4 (Prometheus and Grafana monitoring)
+- **Phase 4 Complete** (GitOps Approach):
+  - Created kube-prometheus-stack HelmChart with Prometheus, Grafana, Alertmanager
+  - Grafana with automatic HTTPS at https://grafana.local
+  - Prometheus with 15-day retention and Longhorn storage (15Gi)
+  - Alertmanager for alert routing and notifications
+  - Default Kubernetes dashboards pre-loaded
+  - Default alert rules for common issues
+  - Node Exporter and kube-state-metrics for comprehensive metrics
+  - Automatic ServiceMonitor discovery
+  - All components use Longhorn for persistence
+  - Minimal resource requests optimized for home server
+  - Comprehensive documentation (PHASE4-MONITORING.md)
+- Ready for Phase 5 (Authentik SSO/LDAP authentication)

@@ -75,6 +75,9 @@ COPY manifests/cert-manager/helmchart.yaml /var/lib/rancher/k3s/server/manifests
 COPY manifests/step-ca/helmchart.yaml /var/lib/rancher/k3s/server/manifests/step-ca.yaml
 COPY manifests/step-ca/clusterissuer.yaml /var/lib/rancher/k3s/server/manifests/step-ca-clusterissuer.yaml
 
+# Phase 4: Prometheus and Grafana for monitoring
+COPY manifests/kube-prometheus-stack/helmchart.yaml /var/lib/rancher/k3s/server/manifests/kube-prometheus-stack.yaml
+
 # Copy systemd service file for k3s
 COPY systemd/k3s.service /etc/systemd/system/k3s.service
 
