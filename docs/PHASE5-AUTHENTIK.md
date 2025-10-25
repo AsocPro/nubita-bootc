@@ -44,6 +44,26 @@ https://authentik.local
 echo "192.168.1.x authentik.local" | sudo tee -a /etc/hosts
 ```
 
+## Automatic Configuration via Blueprints
+
+This deployment uses **Authentik Blueprints** to automatically configure OAuth providers and applications. On first boot, Authentik will:
+
+1. Create a Grafana OAuth2/OIDC provider with client ID `grafana`
+2. Create a Grafana application linked to the provider
+3. Auto-generate a secure client secret
+
+This eliminates manual configuration steps! The blueprint is defined in `manifests/authentik/blueprint-configmap.yaml` and loaded via ConfigMap.
+
+**What's automated:**
+- OAuth provider creation
+- Application registration
+- Redirect URI configuration
+- Scope mappings (openid, profile, email)
+
+**What you still need to do:**
+- Retrieve the auto-generated client secret from Authentik UI
+- Update Grafana configuration with the secret
+
 ## Initial Setup
 
 ### First Login
@@ -83,67 +103,47 @@ Then rebuild the bootc image.
 
 ## Configuring SSO for Grafana
 
-### Step 1: Create OAuth Provider in Authentik
+**Good news!** The Grafana OAuth provider is automatically configured via Authentik blueprints. You only need to retrieve the client secret and update Grafana.
 
-1. Log in to Authentik
+### Step 1: Retrieve OAuth Client Secret
+
+The OAuth provider and application are created automatically on first boot. To get the client secret:
+
+1. Log in to Authentik at `https://authentik.local`
 2. Go to **Applications** → **Providers**
-3. Click **Create** → **OAuth2/OIDC Provider**
-4. Configure:
-   - Name: `Grafana`
-   - Client type: `Confidential`
-   - Client ID: `grafana`
-   - Redirect URIs: `https://grafana.local/login/generic_oauth`
-   - Scopes: `openid`, `profile`, `email`
-5. Click **Create** and note the **Client Secret**
+3. Click on **Grafana** provider
+4. Click **View details** to see the **Client Secret**
+5. Copy the client secret
 
-### Step 2: Create Application in Authentik
+### Step 2: Update Grafana Configuration
 
-1. Go to **Applications** → **Applications**
-2. Click **Create**
-3. Configure:
-   - Name: `Grafana`
-   - Slug: `grafana`
-   - Provider: Select the `Grafana` provider you created
-4. Click **Create**
-
-### Step 3: Update Grafana Configuration
-
-Edit `manifests/kube-prometheus-stack/helmchart.yaml` and uncomment the OAuth section:
+Edit `manifests/kube-prometheus-stack/helmchart.yaml` and replace the placeholder:
 
 ```yaml
 grafana:
   grafana.ini:
-    server:
-      root_url: https://grafana.local
     auth.generic_oauth:
-      enabled: true
-      name: Authentik
-      client_id: grafana
-      client_secret: "YOUR_CLIENT_SECRET_FROM_STEP1"
-      scopes: openid profile email
-      auth_url: https://authentik.local/application/o/authorize/
-      token_url: https://authentik.local/application/o/token/
-      api_url: https://authentik.local/application/o/userinfo/
-      role_attribute_path: contains(groups[*], 'admins') && 'Admin' || 'Viewer'
-      allow_sign_up: true
+      client_secret: "PASTE_YOUR_CLIENT_SECRET_HERE"
 ```
 
-### Step 4: Rebuild and Redeploy
+The OAuth configuration is already enabled, you just need to add the real client secret.
+
+### Step 3: Rebuild and Redeploy
 
 ```bash
-# Rebuild bootc image
+# Rebuild bootc image with updated secret
 ./scripts/build.sh
 
 # Redeploy to apply changes
 ```
 
-Or update the running HelmChart:
+Or update the running HelmChart without rebuilding:
 ```bash
 kubectl edit helmchart kube-prometheus-stack -n kube-system
-# Add the grafana.ini configuration
+# Update the client_secret value
 ```
 
-### Step 5: Test SSO
+### Step 4: Test SSO
 
 1. Go to `https://grafana.local`
 2. Click **Sign in with Authentik**

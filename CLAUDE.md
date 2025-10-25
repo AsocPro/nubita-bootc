@@ -120,20 +120,24 @@ Building a bootc-based immutable OS image hosting a k3s Kubernetes cluster for h
 
 ### Phase 5: Authentication and Access Control
 **Status**: ✅ Complete (ready for deployment)
-**Goal**: Authentik for SSO/LDAP
+**Goal**: Authentik for SSO/LDAP with automatic OAuth configuration
 **Completed**: 2025-10-25
+**Updated**: 2025-10-25 (OAuth automation)
 
 **Tasks**:
 - [x] Create Authentik HelmChart with PostgreSQL and Redis
 - [x] Configure PostgreSQL with Longhorn persistence (5Gi)
 - [x] Configure Redis with Longhorn persistence (1Gi)
 - [x] Configure Authentik ingress with automatic HTTPS
-- [x] Add Grafana OAuth configuration (commented, ready to enable)
+- [x] Create Authentik blueprint for automatic Grafana OAuth provider
+- [x] Enable Grafana OAuth configuration (with placeholder secret)
 - [x] Enable Prometheus metrics via ServiceMonitor
 - [x] Comprehensive documentation (PHASE5-AUTHENTIK.md)
 
 **Files Created**:
 - manifests/authentik/helmchart.yaml (k3s HelmChart CRD)
+- manifests/authentik/blueprint-configmap.yaml (auto-configures OAuth)
+- manifests/authentik/blueprint-grafana.yaml (reference/standalone version)
 - manifests/authentik/README.md
 - docs/PHASE5-AUTHENTIK.md
 
@@ -142,10 +146,17 @@ Building a bootc-based immutable OS image hosting a k3s Kubernetes cluster for h
 - Auto-deployed by k3s on boot
 - Authentik accessible at https://authentik.local
 
-**Grafana Integration**:
-- OAuth configuration added to Grafana HelmChart (commented)
-- Ready to enable after Authentik setup
+**Grafana Integration - AUTOMATED**:
+- OAuth provider auto-created via Authentik blueprint on first boot
+- OAuth configuration enabled in Grafana HelmChart
+- User only needs to retrieve auto-generated client secret from Authentik UI
 - Role mapping configured (admins group → Admin, others → Viewer)
+
+**How OAuth Automation Works**:
+1. Blueprint ConfigMap deploys before Authentik starts
+2. Authentik reads blueprint and creates Grafana OAuth provider
+3. Client ID set to `grafana`, secret auto-generated
+4. User retrieves secret from Authentik UI and updates Grafana config
 
 ---
 

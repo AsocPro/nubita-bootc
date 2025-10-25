@@ -131,6 +131,12 @@ spec:
         enabled: true
         interval: 30s
 
+    # Blueprints for automatic configuration
+    blueprints:
+      # ConfigMap containing blueprints
+      configMaps:
+        - authentik-blueprints
+
     # Environment variables
     env:
       # Log level

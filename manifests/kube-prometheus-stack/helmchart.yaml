@@ -73,21 +73,23 @@ spec:
         - grafana-clock-panel
 
       # Authentik OAuth integration (Phase 5)
-      # Uncomment after configuring Authentik OAuth provider
-      # grafana.ini:
-      #   server:
-      #     root_url: https://grafana.local
-      #   auth.generic_oauth:
-      #     enabled: true
-      #     name: Authentik
-      #     client_id: grafana
-      #     client_secret: "YOUR_CLIENT_SECRET"
-      #     scopes: openid profile email
-      #     auth_url: https://authentik.local/application/o/authorize/
-      #     token_url: https://authentik.local/application/o/token/
-      #     api_url: https://authentik.local/application/o/userinfo/
-      #     role_attribute_path: contains(groups[*], 'admins') && 'Admin' || 'Viewer'
-      #     allow_sign_up: true
+      # OAuth provider is auto-configured via Authentik blueprint
+      # Replace AUTHENTIK_CLIENT_SECRET with the value from:
+      # Authentik UI → Applications → Providers → Grafana → View Client Secret
+      grafana.ini:
+        server:
+          root_url: https://grafana.local
+        auth.generic_oauth:
+          enabled: true
+          name: Authentik
+          client_id: grafana
+          client_secret: "AUTHENTIK_CLIENT_SECRET"
+          scopes: openid profile email
+          auth_url: https://authentik.local/application/o/authorize/
+          token_url: https://authentik.local/application/o/token/
+          api_url: https://authentik.local/application/o/userinfo/
+          role_attribute_path: contains(groups[*], 'admins') && 'Admin' || 'Viewer'
+          allow_sign_up: true
 
     # Prometheus configuration
     prometheus:

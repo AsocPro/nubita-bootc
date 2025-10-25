@@ -79,6 +79,7 @@ COPY manifests/step-ca/clusterissuer.yaml /var/lib/rancher/k3s/server/manifests/
 COPY manifests/kube-prometheus-stack/helmchart.yaml /var/lib/rancher/k3s/server/manifests/kube-prometheus-stack.yaml
 
 # Phase 5: Authentik for SSO/LDAP authentication
+COPY manifests/authentik/blueprint-configmap.yaml /var/lib/rancher/k3s/server/manifests/authentik-blueprints.yaml
 COPY manifests/authentik/helmchart.yaml /var/lib/rancher/k3s/server/manifests/authentik.yaml
 
 # Copy systemd service file for k3s

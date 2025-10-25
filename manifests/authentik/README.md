@@ -60,12 +60,14 @@ On first access:
 
 ### For Grafana
 
+**Automated!** The Grafana OAuth provider is automatically configured via Authentik blueprints.
+
 See [../../docs/PHASE5-AUTHENTIK.md](../../docs/PHASE5-AUTHENTIK.md#configuring-sso-for-grafana) for complete setup.
 
 Quick steps:
-1. Create OAuth provider in Authentik
-2. Create application in Authentik
-3. Update Grafana configuration with OAuth settings
+1. Retrieve client secret from Authentik UI (auto-generated on first boot)
+2. Update Grafana configuration with the client secret
+3. Rebuild or update the HelmChart
 4. Users can log in to Grafana with Authentik
 
 ## Verification
