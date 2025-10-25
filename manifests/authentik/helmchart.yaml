@@ -1,0 +1,143 @@
+# Authentik HelmChart for k3s Helm Controller
+# SSO and authentication provider with OIDC/LDAP support
+# See: https://goauthentik.io/docs/
+
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: authentik
+  namespace: kube-system
+spec:
+  repo: https://charts.goauthentik.io
+  chart: authentik
+  targetNamespace: authentik
+  createNamespace: true
+
+  # Authentik configuration
+  valuesContent: |-
+    # Authentik server configuration
+    authentik:
+      # Secret key for sessions (change this in production!)
+      secret_key: "change-me-to-a-random-string-at-least-50-chars-long"
+
+      # Error reporting (disable for privacy)
+      error_reporting:
+        enabled: false
+
+      # PostgreSQL configuration
+      postgresql:
+        host: "authentik-postgresql"
+        name: "authentik"
+        user: "authentik"
+        password: "authentik"  # Change this!
+
+      # Email configuration (optional)
+      # email:
+      #   host: "smtp.gmail.com"
+      #   port: 587
+      #   username: "your-email@gmail.com"
+      #   password: "your-app-password"
+      #   use_tls: true
+      #   from: "authentik@yourdomain.com"
+
+    # Server deployment
+    server:
+      replicas: 1
+
+      # Resources for home server
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
+
+      # Ingress with automatic TLS
+      ingress:
+        enabled: true
+        ingressClassName: traefik
+        annotations:
+          cert-manager.io/cluster-issuer: step-ca
+        hosts:
+          - host: authentik.local
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - secretName: authentik-tls
+            hosts:
+              - authentik.local
+
+    # Worker deployment (background tasks)
+    worker:
+      replicas: 1
+
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          cpu: 200m
+          memory: 256Mi
+
+    # PostgreSQL database
+    postgresql:
+      enabled: true
+
+      auth:
+        username: authentik
+        password: authentik  # Change this!
+        database: authentik
+
+      primary:
+        persistence:
+          enabled: true
+          storageClass: longhorn
+          size: 5Gi
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+
+    # Redis for caching
+    redis:
+      enabled: true
+
+      auth:
+        enabled: false  # Can enable for production
+
+      master:
+        persistence:
+          enabled: true
+          storageClass: longhorn
+          size: 1Gi
+
+        resources:
+          requests:
+            cpu: 20m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+
+    # Prometheus metrics
+    prometheus:
+      serviceMonitor:
+        enabled: true
+        interval: 30s
+
+    # Environment variables
+    env:
+      # Log level
+      AUTHENTIK_LOG_LEVEL: info
+
+      # Bootstrap settings
+      # These create an initial admin user
+      # AUTHENTIK_BOOTSTRAP_PASSWORD: "change-me"
+      # AUTHENTIK_BOOTSTRAP_TOKEN: "change-me-token"
+      # AUTHENTIK_BOOTSTRAP_EMAIL: "admin@authentik.local"

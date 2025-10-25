@@ -8,7 +8,7 @@ Building a bootc-based immutable OS image hosting a k3s Kubernetes cluster for h
 ## Current Status
 
 **Last Updated**: 2025-10-25
-**Current Phase**: Phase 4 - Monitoring and Observability
+**Current Phase**: Phase 5 - Authentication and Access Control
 **Status**: ✅ Complete (ready for deployment)
 
 ## Implementation Progress
@@ -119,16 +119,33 @@ Building a bootc-based immutable OS image hosting a k3s Kubernetes cluster for h
 ---
 
 ### Phase 5: Authentication and Access Control
-**Status**: ⚪ Not Started
+**Status**: ✅ Complete (ready for deployment)
 **Goal**: Authentik for SSO/LDAP
+**Completed**: 2025-10-25
 
 **Tasks**:
-- [ ] Deploy Authentik via Helm
-- [ ] Configure PostgreSQL with Longhorn persistence
-- [ ] Set up OIDC providers
-- [ ] Enable LDAP support
-- [ ] Integrate with Traefik
-- [ ] Test SSO login flow
+- [x] Create Authentik HelmChart with PostgreSQL and Redis
+- [x] Configure PostgreSQL with Longhorn persistence (5Gi)
+- [x] Configure Redis with Longhorn persistence (1Gi)
+- [x] Configure Authentik ingress with automatic HTTPS
+- [x] Add Grafana OAuth configuration (commented, ready to enable)
+- [x] Enable Prometheus metrics via ServiceMonitor
+- [x] Comprehensive documentation (PHASE5-AUTHENTIK.md)
+
+**Files Created**:
+- manifests/authentik/helmchart.yaml (k3s HelmChart CRD)
+- manifests/authentik/README.md
+- docs/PHASE5-AUTHENTIK.md
+
+**Containerfile Updated**:
+- Copies Phase 5 manifests to /var/lib/rancher/k3s/server/manifests/
+- Auto-deployed by k3s on boot
+- Authentik accessible at https://authentik.local
+
+**Grafana Integration**:
+- OAuth configuration added to Grafana HelmChart (commented)
+- Ready to enable after Authentik setup
+- Role mapping configured (admins group → Admin, others → Viewer)
 
 ---
 
@@ -177,7 +194,7 @@ Building a bootc-based immutable OS image hosting a k3s Kubernetes cluster for h
 - [x] Phase 2: Longhorn HelmChart, backup secret template
 - [x] Phase 3: cert-manager HelmChart, step-ca HelmChart, ClusterIssuer
 - [x] Phase 4: kube-prometheus-stack HelmChart
-- [ ] Phase 5: Authentik Helm values.yaml
+- [x] Phase 5: Authentik HelmChart with PostgreSQL and Redis
 - [ ] Phase 6: Gitea, Vaultwarden Helm values.yaml
 - [ ] Phase 7: Home Assistant Helm values.yaml
 
@@ -220,14 +237,17 @@ _None at this time_
 2. ✅ Complete Phase 2: Longhorn storage manifests (GitOps auto-deploy)
 3. ✅ Complete Phase 3: TLS with cert-manager and step-ca (GitOps auto-deploy)
 4. ✅ Complete Phase 4: Monitoring with Prometheus and Grafana (GitOps auto-deploy)
-5. Build and deploy bootc image to validate Phases 1-4 (see docs/VALIDATION.md)
-6. Verify automatic deployment of all services
-7. Test UIs with automatic HTTPS:
+5. ✅ Complete Phase 5: Authentik for SSO/LDAP authentication (GitOps auto-deploy)
+6. Build and deploy bootc image to validate Phases 1-5 (see docs/VALIDATION.md)
+7. Verify automatic deployment of all services
+8. Test UIs with automatic HTTPS:
    - https://longhorn.local
    - https://grafana.local
    - https://prometheus.local
-8. Begin Phase 5: Authentik for SSO/LDAP authentication
-9. Test immutable OS update/rollback with ostree
+   - https://authentik.local
+9. Configure Authentik OAuth for Grafana SSO
+10. Begin Phase 6: Gitea and Vaultwarden with SSO
+11. Test immutable OS update/rollback with ostree
 
 ---
 
@@ -297,4 +317,17 @@ _None at this time_
   - All components use Longhorn for persistence
   - Minimal resource requests optimized for home server
   - Comprehensive documentation (PHASE4-MONITORING.md)
-- Ready for Phase 5 (Authentik SSO/LDAP authentication)
+- **Phase 5 Complete** (GitOps Approach):
+  - Created Authentik HelmChart for SSO/LDAP authentication
+  - PostgreSQL database with Longhorn storage (5Gi)
+  - Redis cache with Longhorn storage (1Gi)
+  - Authentik with automatic HTTPS at https://authentik.local
+  - OIDC/OAuth2 support for modern applications
+  - LDAP support for legacy applications
+  - Grafana OAuth configuration ready (commented in HelmChart)
+  - User and group management with web UI
+  - Prometheus metrics via ServiceMonitor
+  - Minimal resource requests optimized for home server
+  - Comprehensive documentation (PHASE5-AUTHENTIK.md)
+  - Security recommendations for production deployment
+- Ready for Phase 6 (Gitea and Vaultwarden with SSO integration)

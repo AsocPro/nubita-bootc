@@ -78,6 +78,9 @@ COPY manifests/step-ca/clusterissuer.yaml /var/lib/rancher/k3s/server/manifests/
 # Phase 4: Prometheus and Grafana for monitoring
 COPY manifests/kube-prometheus-stack/helmchart.yaml /var/lib/rancher/k3s/server/manifests/kube-prometheus-stack.yaml
 
+# Phase 5: Authentik for SSO/LDAP authentication
+COPY manifests/authentik/helmchart.yaml /var/lib/rancher/k3s/server/manifests/authentik.yaml
+
 # Copy systemd service file for k3s
 COPY systemd/k3s.service /etc/systemd/system/k3s.service
 
