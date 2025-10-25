@@ -208,5 +208,7 @@ _None at this time_
   - Updated systemd service, goss config, and all documentation
   - Added k3s-selinux package for proper SELinux contexts
   - Added policycoreutils-python-utils for SELinux management
+  - Skip SELinux context application during build (INSTALL_K3S_SKIP_SELINUX_RPM=true)
+  - SELinux contexts applied at boot time by systemd, not during image build
   - Build now compatible with immutable/ostree filesystem layout
 - Ready for Phase 2
