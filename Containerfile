@@ -23,6 +23,12 @@ RUN rpm-ostree install \
     container-selinux \
     && rpm-ostree cleanup -m
 
+# Create directory structure for k3s and binaries
+RUN mkdir -p /etc/rancher/k3s \
+    && mkdir -p /var/lib/rancher/k3s \
+    && mkdir -p /var/lib/longhorn \
+    && mkdir -p /usr/local/bin
+
 # Download and install k3s binary
 RUN curl -sfL ${K3S_INSTALL_SCRIPT_URL} | \
     INSTALL_K3S_VERSION=${K3S_VERSION} \
@@ -35,11 +41,6 @@ RUN ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/') && \
     curl -fsSL https://github.com/goss-org/goss/releases/download/v${GOSS_VERSION}/goss-linux-${ARCH} \
         -o /usr/local/bin/goss && \
     chmod +x /usr/local/bin/goss
-
-# Create directory structure for k3s
-RUN mkdir -p /etc/rancher/k3s \
-    && mkdir -p /var/lib/rancher/k3s \
-    && mkdir -p /var/lib/longhorn
 
 # Optional: Custom CA certificate support layer
 # Uncomment and add your custom CA certificates to the build context
