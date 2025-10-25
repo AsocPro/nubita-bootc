@@ -16,6 +16,8 @@ secrets/
 *.secret
 *.key
 *.pem
+**/backup-secret.yaml
+!**/backup-secret.yaml.example
 
 # Container runtime
 .buildah/

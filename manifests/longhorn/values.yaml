@@ -1,0 +1,75 @@
+# Longhorn Helm Values - Phase 2: Storage and Persistence
+# Minimal configuration for single-node k3s cluster
+# See: https://github.com/longhorn/longhorn
+
+# Persistence settings
+persistence:
+  defaultClass: true
+  defaultClassReplicaCount: 1  # Single-node: only 1 replica
+  reclaimPolicy: Retain
+
+# Default settings
+defaultSettings:
+  # Storage path on the host
+  defaultDataPath: /var/lib/longhorn
+
+  # Single-node settings
+  replicaSoftAntiAffinity: false
+  replicaAutoBalance: disabled
+
+  # Backup configuration (optional - configure when S3 endpoint is ready)
+  # backupTarget: s3://bucket-name@region/
+  # backupTargetCredentialSecret: longhorn-backup-secret
+
+  # Performance tuning for home server
+  guaranteedEngineManagerCPU: 5
+  guaranteedReplicaManagerCPU: 5
+
+  # Storage overprovisioning (percentage)
+  storageOverProvisioningPercentage: 200
+  storageMinimalAvailablePercentage: 10
+
+  # Upgrade settings
+  upgradeChecker: true
+
+  # Allow volume creation even if replica count cannot be satisfied
+  allowRecurringJobWhileVolumeDetached: true
+
+# Longhorn manager settings
+longhornManager:
+  tolerations:
+  - key: "node-role.kubernetes.io/control-plane"
+    operator: "Exists"
+    effect: "NoSchedule"
+
+# Longhorn driver settings
+longhornDriver:
+  tolerations:
+  - key: "node-role.kubernetes.io/control-plane"
+    operator: "Exists"
+    effect: "NoSchedule"
+
+# UI settings
+longhornUI:
+  replicas: 1
+  tolerations:
+  - key: "node-role.kubernetes.io/control-plane"
+    operator: "Exists"
+    effect: "NoSchedule"
+
+# Ingress for Longhorn UI (configure in Phase 3 with step-ca)
+ingress:
+  enabled: false  # Enable in Phase 3 with TLS
+  # host: longhorn.local
+  # ingressClassName: traefik
+  # annotations:
+  #   cert-manager.io/cluster-issuer: step-ca
+
+# Resources - minimal for home server
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

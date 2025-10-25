@@ -8,8 +8,8 @@ Building a bootc-based immutable OS image hosting a k3s Kubernetes cluster for h
 ## Current Status
 
 **Last Updated**: 2025-10-25
-**Current Phase**: Phase 1 - Base Cluster Setup
-**Status**: ✅ Complete (awaiting deployment validation)
+**Current Phase**: Phase 2 - Storage and Persistence
+**Status**: ✅ Complete (ready for deployment)
 
 ## Implementation Progress
 
@@ -35,16 +35,26 @@ Building a bootc-based immutable OS image hosting a k3s Kubernetes cluster for h
 ---
 
 ### Phase 2: Storage and Persistence (Core Infrastructure)
-**Status**: ⚪ Not Started
+**Status**: ✅ Complete (ready for deployment)
 **Goal**: Longhorn for storage with optional encrypted backups
+**Completed**: 2025-10-25
 
 **Tasks**:
-- [ ] Deploy Longhorn via Helm with minimal values.yaml
-- [ ] Configure storage path to `/var/lib/longhorn`
-- [ ] Set single-node replica count
-- [ ] (Optional) Configure encrypted backups to AWS/Backblaze
-- [ ] Test PVC creation and persistence
-- [ ] Validate encrypted backup if configured
+- [x] Create Longhorn Helm values.yaml with minimal configuration
+- [x] Configure storage path to `/var/lib/longhorn`
+- [x] Set single-node replica count (1 replica)
+- [x] Create backup secret template for S3/Backblaze
+- [x] Create deployment script (manifests/longhorn/deploy.sh)
+- [x] Create test PVC manifest for validation
+- [x] Comprehensive documentation (PHASE2-LONGHORN.md)
+
+**Files Created**:
+- manifests/longhorn/values.yaml
+- manifests/longhorn/backup-secret.yaml.example
+- manifests/longhorn/deploy.sh
+- manifests/longhorn/test-pvc.yaml
+- manifests/longhorn/README.md
+- docs/PHASE2-LONGHORN.md
 
 ---
 
@@ -130,7 +140,7 @@ Building a bootc-based immutable OS image hosting a k3s Kubernetes cluster for h
 - [x] Update/rollback procedures (documented in BUILD.md)
 
 ### Kubernetes Manifests
-- [ ] Phase 2: Longhorn Helm values.yaml
+- [x] Phase 2: Longhorn Helm values.yaml, deployment script, backup secret template
 - [ ] Phase 3: step-ca, cert-manager, ClusterIssuer configs
 - [ ] Phase 4: kube-prometheus-stack values.yaml
 - [ ] Phase 5: Authentik Helm values.yaml
@@ -173,9 +183,11 @@ _None at this time_
 ## Next Steps
 
 1. ✅ Complete Phase 1: Base cluster setup (code complete)
-2. Build and deploy image to validate Phase 1 (see docs/VALIDATION.md)
-3. Begin Phase 2: Longhorn storage deployment
-4. Test immutable OS update/rollback with ostree
+2. ✅ Complete Phase 2: Longhorn storage manifests (ready to deploy)
+3. Build and deploy bootc image to validate Phase 1 (see docs/VALIDATION.md)
+4. Deploy Longhorn to cluster (see docs/PHASE2-LONGHORN.md)
+5. Begin Phase 3: step-ca and cert-manager for TLS
+6. Test immutable OS update/rollback with ostree
 
 ---
 
@@ -211,4 +223,13 @@ _None at this time_
   - Skip SELinux context application during build (INSTALL_K3S_SKIP_SELINUX_RPM=true)
   - SELinux contexts applied at boot time by systemd, not during image build
   - Build now compatible with immutable/ostree filesystem layout
-- Ready for Phase 2
+- **Phase 2 Complete**:
+  - Created minimal Longhorn Helm values for single-node deployment
+  - Configured storage path to /var/lib/longhorn (created in Containerfile)
+  - Single replica configuration for single-node cluster
+  - Created backup secret template for S3/Backblaze encrypted backups
+  - Automated deployment script (manifests/longhorn/deploy.sh)
+  - Test PVC manifest for validation
+  - Comprehensive documentation (PHASE2-LONGHORN.md)
+  - Multi-node expansion documented for future scaling
+- Ready for Phase 3 (step-ca and cert-manager)

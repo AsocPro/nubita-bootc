@@ -1,0 +1,32 @@
+# Test PVC for Longhorn
+# Use this to verify Longhorn is working correctly
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: longhorn-test-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: longhorn-test-pod
+  namespace: default
+spec:
+  containers:
+  - name: test
+    image: nginx:alpine
+    volumeMounts:
+    - name: test-volume
+      mountPath: /data
+  volumes:
+  - name: test-volume
+    persistentVolumeClaim:
+      claimName: longhorn-test-pvc
