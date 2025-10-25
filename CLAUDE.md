@@ -200,8 +200,11 @@ _None at this time_
   - Updated healthcheck.sh as a feature-rich goss wrapper with retry logic, multiple output formats, and verbose mode
   - Updated all documentation to reflect goss-based health checks
   - Health checks now provide comprehensive cluster validation beyond basic scripts
-- **Build Fix**:
-  - Fixed k3s installation path issue in bootc/ostree filesystem
-  - Created /usr/local/bin directory before k3s installation
-  - Build now succeeds without directory errors
+- **Build Fixes**:
+  - Fixed ostree /usr/local symlink issue
+  - In ostree systems, /usr/local is a symlink to /var/usrlocal
+  - Changed all binaries to install to /usr/bin (proper location for ostree)
+  - Updated k3s, goss, and healthcheck.sh installation paths
+  - Updated systemd service, goss config, and all documentation
+  - Build now compatible with immutable/ostree filesystem layout
 - Ready for Phase 2
