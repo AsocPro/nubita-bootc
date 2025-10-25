@@ -22,7 +22,7 @@ RestartSec=5s
 # Use k3s server mode (single-node cluster)
 ExecStartPre=-/sbin/modprobe br_netfilter
 ExecStartPre=-/sbin/modprobe overlay
-ExecStart=/usr/local/bin/k3s server
+ExecStart=/usr/bin/k3s server
 
 [Install]
 WantedBy=multi-user.target

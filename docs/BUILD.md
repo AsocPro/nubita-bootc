@@ -152,16 +152,16 @@ After booting into the new system:
 3. **Run goss-based health check**:
    ```bash
    # Basic health check
-   sudo /usr/local/bin/healthcheck.sh
+   sudo /usr/bin/healthcheck.sh
 
    # Verbose output with detailed test results
-   sudo /usr/local/bin/healthcheck.sh -v
+   sudo /usr/bin/healthcheck.sh -v
 
    # With retry logic (useful during cluster startup)
-   sudo /usr/local/bin/healthcheck.sh -r 3 -s 10
+   sudo /usr/bin/healthcheck.sh -r 3 -s 10
 
    # JSON output for automation/monitoring
-   sudo /usr/local/bin/healthcheck.sh -f json
+   sudo /usr/bin/healthcheck.sh -f json
    ```
 
 4. **Check k3s version**:
@@ -172,7 +172,7 @@ After booting into the new system:
 
 ## Health Checks with Goss
 
-The image includes [goss](https://github.com/goss-org/goss), a YAML-based serverspec alternative for validating server configuration. The health check script (`/usr/local/bin/healthcheck.sh`) wraps goss to provide comprehensive cluster validation.
+The image includes [goss](https://github.com/goss-org/goss), a YAML-based serverspec alternative for validating server configuration. The health check script (`/usr/bin/healthcheck.sh`) wraps goss to provide comprehensive cluster validation.
 
 ### What Gets Validated
 
@@ -191,22 +191,22 @@ The goss configuration (`/etc/goss/goss.yaml`) validates:
 
 ```bash
 # Basic usage - runs all tests
-sudo /usr/local/bin/healthcheck.sh
+sudo /usr/bin/healthcheck.sh
 
 # Verbose output
-sudo /usr/local/bin/healthcheck.sh -v
+sudo /usr/bin/healthcheck.sh -v
 
 # Retry on failure (useful during startup)
-sudo /usr/local/bin/healthcheck.sh -r 3 -s 10
+sudo /usr/bin/healthcheck.sh -r 3 -s 10
 
 # Different output formats
-sudo /usr/local/bin/healthcheck.sh -f json      # JSON
-sudo /usr/local/bin/healthcheck.sh -f junit     # JUnit XML
-sudo /usr/local/bin/healthcheck.sh -f tap       # TAP
-sudo /usr/local/bin/healthcheck.sh -f silent    # Silent (exit code only)
+sudo /usr/bin/healthcheck.sh -f json      # JSON
+sudo /usr/bin/healthcheck.sh -f junit     # JUnit XML
+sudo /usr/bin/healthcheck.sh -f tap       # TAP
+sudo /usr/bin/healthcheck.sh -f silent    # Silent (exit code only)
 
 # Get help
-/usr/local/bin/healthcheck.sh --help
+/usr/bin/healthcheck.sh --help
 ```
 
 ### Direct Goss Usage
@@ -296,8 +296,8 @@ sudo systemctl reboot
 
 2. **Verify k3s binary**:
    ```bash
-   ls -l /usr/local/bin/k3s
-   /usr/local/bin/k3s --version
+   ls -l /usr/bin/k3s
+   /usr/bin/k3s --version
    ```
 
 3. **Check network requirements**:
@@ -311,7 +311,7 @@ sudo systemctl reboot
 k3s installs `kubectl` as a symlink. If missing:
 
 ```bash
-sudo ln -s /usr/local/bin/k3s /usr/local/bin/kubectl
+sudo ln -s /usr/bin/k3s /usr/bin/kubectl
 ```
 
 Or use k3s directly:

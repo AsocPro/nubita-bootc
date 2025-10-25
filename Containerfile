@@ -23,24 +23,26 @@ RUN rpm-ostree install \
     container-selinux \
     && rpm-ostree cleanup -m
 
-# Create directory structure for k3s and binaries
+# Create directory structure for k3s
 RUN mkdir -p /etc/rancher/k3s \
     && mkdir -p /var/lib/rancher/k3s \
-    && mkdir -p /var/lib/longhorn \
-    && mkdir -p /usr/local/bin
+    && mkdir -p /var/lib/longhorn
 
 # Download and install k3s binary
+# In ostree systems, install to /usr/bin instead of /usr/local/bin
 RUN curl -sfL ${K3S_INSTALL_SCRIPT_URL} | \
     INSTALL_K3S_VERSION=${K3S_VERSION} \
     INSTALL_K3S_SKIP_START=true \
     INSTALL_K3S_SKIP_ENABLE=true \
+    INSTALL_K3S_BIN_DIR=/usr/bin \
     sh -
 
 # Download and install goss for health checks
+# Install to /usr/bin for ostree compatibility
 RUN ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/') && \
     curl -fsSL https://github.com/goss-org/goss/releases/download/v${GOSS_VERSION}/goss-linux-${ARCH} \
-        -o /usr/local/bin/goss && \
-    chmod +x /usr/local/bin/goss
+        -o /usr/bin/goss && \
+    chmod +x /usr/bin/goss
 
 # Optional: Custom CA certificate support layer
 # Uncomment and add your custom CA certificates to the build context
@@ -70,9 +72,8 @@ RUN ostree container commit
 COPY config/goss.yaml /etc/goss/goss.yaml
 
 # Copy health check script wrapper for goss
-COPY scripts/healthcheck.sh /usr/local/bin/healthcheck.sh
-RUN chmod +x /usr/local/bin/healthcheck.sh
+COPY scripts/healthcheck.sh /usr/bin/healthcheck.sh
+RUN chmod +x /usr/bin/healthcheck.sh
 
 # Default k3s environment variables
 ENV KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-ENV PATH="/usr/local/bin:${PATH}"

@@ -121,16 +121,16 @@ Built-in goss-based health validation for comprehensive cluster testing:
 
 ```bash
 # Comprehensive health check using goss
-sudo /usr/local/bin/healthcheck.sh
+sudo /usr/bin/healthcheck.sh
 
 # Verbose output
-sudo /usr/local/bin/healthcheck.sh -v
+sudo /usr/bin/healthcheck.sh -v
 
 # With retry logic (useful during startup)
-sudo /usr/local/bin/healthcheck.sh -r 3 -s 10
+sudo /usr/bin/healthcheck.sh -r 3 -s 10
 
 # JSON output for monitoring
-sudo /usr/local/bin/healthcheck.sh -f json
+sudo /usr/bin/healthcheck.sh -f json
 
 # k3s status
 sudo systemctl status k3s

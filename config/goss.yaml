@@ -15,7 +15,7 @@ process:
 # File checks
 file:
   # k3s binary
-  /usr/local/bin/k3s:
+  /usr/bin/k3s:
     exists: true
     mode: "0755"
     filetype: file

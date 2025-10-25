@@ -54,7 +54,7 @@ podman inspect localhost/nubita-bootc:latest | jq '.[0].Config.Labels'
 ### 3. Verify k3s Binary in Image (if possible)
 
 ```bash
-podman run --rm localhost/nubita-bootc:latest /usr/local/bin/k3s --version
+podman run --rm localhost/nubita-bootc:latest /usr/bin/k3s --version
 ```
 
 **Expected output**: Should display k3s version (e.g., `v1.31.4+k3s1`)
@@ -77,19 +77,19 @@ sudo kubectl get nodes
 sudo kubectl get pods -A
 
 # Run goss-based health check (comprehensive)
-sudo /usr/local/bin/healthcheck.sh
+sudo /usr/bin/healthcheck.sh
 
 # Run with verbose output
-sudo /usr/local/bin/healthcheck.sh -v
+sudo /usr/bin/healthcheck.sh -v
 
 # Run with retry logic (useful during startup)
-sudo /usr/local/bin/healthcheck.sh -r 3 -s 10
+sudo /usr/bin/healthcheck.sh -r 3 -s 10
 
 # Output as JSON for automation
-sudo /usr/local/bin/healthcheck.sh -f json
+sudo /usr/bin/healthcheck.sh -f json
 
 # Get help on health check options
-/usr/local/bin/healthcheck.sh --help
+/usr/bin/healthcheck.sh --help
 ```
 
 **Expected outcomes**:
@@ -118,7 +118,7 @@ podman run --rm localhost/nubita-bootc:latest cat /etc/systemd/system/k3s.servic
 podman run --rm localhost/nubita-bootc:latest cat /etc/rancher/k3s/config.yaml
 
 # Verify k3s binary
-podman run --rm localhost/nubita-bootc:latest ls -l /usr/local/bin/k3s
+podman run --rm localhost/nubita-bootc:latest ls -l /usr/bin/k3s
 
 # Verify goss is installed
 podman run --rm localhost/nubita-bootc:latest goss --version
@@ -127,7 +127,7 @@ podman run --rm localhost/nubita-bootc:latest goss --version
 podman run --rm localhost/nubita-bootc:latest cat /etc/goss/goss.yaml
 
 # Verify healthcheck script
-podman run --rm localhost/nubita-bootc:latest /usr/local/bin/healthcheck.sh --help
+podman run --rm localhost/nubita-bootc:latest /usr/bin/healthcheck.sh --help
 ```
 
 ## Validation Test Pod
