@@ -76,15 +76,35 @@ sudo systemctl status k3s
 sudo kubectl get nodes
 sudo kubectl get pods -A
 
-# Run health check
+# Run goss-based health check (comprehensive)
 sudo /usr/local/bin/healthcheck.sh
+
+# Run with verbose output
+sudo /usr/local/bin/healthcheck.sh -v
+
+# Run with retry logic (useful during startup)
+sudo /usr/local/bin/healthcheck.sh -r 3 -s 10
+
+# Output as JSON for automation
+sudo /usr/local/bin/healthcheck.sh -f json
+
+# Get help on health check options
+/usr/local/bin/healthcheck.sh --help
 ```
 
 **Expected outcomes**:
 - k3s service is active and running
 - Node shows as "Ready"
 - All system pods are running (coredns, traefik, etc.)
-- Health check passes
+- Health check passes all goss validation tests:
+  - Service checks (k3s enabled and running)
+  - Process checks (k3s process running)
+  - File checks (binaries, configs exist)
+  - Port checks (6443, 10250 listening)
+  - HTTP checks (API server /healthz endpoint)
+  - Command checks (kubectl works, nodes ready)
+  - Kernel module checks (br_netfilter, overlay loaded)
+  - DNS checks (cluster DNS resolution)
 
 ### Option B: Manual Inspection
 
@@ -99,6 +119,15 @@ podman run --rm localhost/nubita-bootc:latest cat /etc/rancher/k3s/config.yaml
 
 # Verify k3s binary
 podman run --rm localhost/nubita-bootc:latest ls -l /usr/local/bin/k3s
+
+# Verify goss is installed
+podman run --rm localhost/nubita-bootc:latest goss --version
+
+# Check goss configuration
+podman run --rm localhost/nubita-bootc:latest cat /etc/goss/goss.yaml
+
+# Verify healthcheck script
+podman run --rm localhost/nubita-bootc:latest /usr/local/bin/healthcheck.sh --help
 ```
 
 ## Validation Test Pod

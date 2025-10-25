@@ -1,0 +1,104 @@
+# Goss Health Check Configuration for Nubita Bootc k3s
+# This file defines all validation tests for the k3s cluster
+
+# System service checks
+service:
+  k3s:
+    enabled: true
+    running: true
+
+# Process checks
+process:
+  k3s:
+    running: true
+
+# File checks
+file:
+  # k3s binary
+  /usr/local/bin/k3s:
+    exists: true
+    mode: "0755"
+    filetype: file
+
+  # k3s config
+  /etc/rancher/k3s/config.yaml:
+    exists: true
+    filetype: file
+
+  # k3s kubeconfig (created after k3s starts)
+  /etc/rancher/k3s/k3s.yaml:
+    exists: true
+    filetype: file
+
+  # systemd service file
+  /etc/systemd/system/k3s.service:
+    exists: true
+    filetype: file
+
+# Port checks - k3s API server and kubelet
+port:
+  tcp:6443:
+    listening: true
+    ip:
+    - 0.0.0.0
+  tcp:10250:
+    listening: true
+
+# HTTP endpoint checks
+http:
+  # k3s API server health
+  https://127.0.0.1:6443/healthz:
+    status: 200
+    timeout: 5000
+    insecure: true
+    allow-insecure-redirect: true
+
+# Command checks - verify kubectl functionality
+command:
+  # Check kubectl can connect to API
+  "kubectl get --raw /healthz":
+    exit-status: 0
+    stdout:
+    - "ok"
+    timeout: 10000
+
+  # Check nodes are ready
+  "kubectl get nodes -o jsonpath='{.items[0].status.conditions[?(@.type==\"Ready\")].status}'":
+    exit-status: 0
+    stdout:
+    - "True"
+    timeout: 10000
+
+  # Check required system pods are present
+  "kubectl get pods -n kube-system -l k8s-app=kube-dns -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "/Running/"
+    timeout: 10000
+
+  # Check k3s version
+  "k3s --version":
+    exit-status: 0
+    stdout:
+    - "/k3s version/"
+    timeout: 5000
+
+  # Verify goss itself is working
+  "goss --version":
+    exit-status: 0
+    stdout:
+    - "/goss version/"
+    timeout: 5000
+
+# Kernel module checks (required for k3s)
+kernel-module:
+  br_netfilter:
+    loaded: true
+  overlay:
+    loaded: true
+
+# DNS resolution check
+dns:
+  kubernetes.default.svc.cluster.local:
+    resolvable: true
+    timeout: 5000

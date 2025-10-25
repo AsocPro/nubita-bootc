@@ -149,15 +149,98 @@ After booting into the new system:
    sudo kubectl get pods -A
    ```
 
-3. **Run health check**:
+3. **Run goss-based health check**:
    ```bash
+   # Basic health check
    sudo /usr/local/bin/healthcheck.sh
+
+   # Verbose output with detailed test results
+   sudo /usr/local/bin/healthcheck.sh -v
+
+   # With retry logic (useful during cluster startup)
+   sudo /usr/local/bin/healthcheck.sh -r 3 -s 10
+
+   # JSON output for automation/monitoring
+   sudo /usr/local/bin/healthcheck.sh -f json
    ```
 
 4. **Check k3s version**:
    ```bash
    k3s --version
+   goss --version
    ```
+
+## Health Checks with Goss
+
+The image includes [goss](https://github.com/goss-org/goss), a YAML-based serverspec alternative for validating server configuration. The health check script (`/usr/local/bin/healthcheck.sh`) wraps goss to provide comprehensive cluster validation.
+
+### What Gets Validated
+
+The goss configuration (`/etc/goss/goss.yaml`) validates:
+
+- **Services**: k3s service is enabled and running
+- **Processes**: k3s process is active
+- **Files**: k3s binary, config files, kubeconfig exist with correct permissions
+- **Ports**: API server (6443) and kubelet (10250) are listening
+- **HTTP Endpoints**: API server /healthz endpoint responds
+- **Commands**: kubectl works, nodes are ready, system pods are running
+- **Kernel Modules**: Required modules (br_netfilter, overlay) are loaded
+- **DNS**: Cluster DNS resolution works
+
+### Health Check Usage
+
+```bash
+# Basic usage - runs all tests
+sudo /usr/local/bin/healthcheck.sh
+
+# Verbose output
+sudo /usr/local/bin/healthcheck.sh -v
+
+# Retry on failure (useful during startup)
+sudo /usr/local/bin/healthcheck.sh -r 3 -s 10
+
+# Different output formats
+sudo /usr/local/bin/healthcheck.sh -f json      # JSON
+sudo /usr/local/bin/healthcheck.sh -f junit     # JUnit XML
+sudo /usr/local/bin/healthcheck.sh -f tap       # TAP
+sudo /usr/local/bin/healthcheck.sh -f silent    # Silent (exit code only)
+
+# Get help
+/usr/local/bin/healthcheck.sh --help
+```
+
+### Direct Goss Usage
+
+You can also run goss directly for more control:
+
+```bash
+# Run all tests
+sudo goss --gossfile /etc/goss/goss.yaml validate
+
+# Run specific tests
+sudo goss --gossfile /etc/goss/goss.yaml validate --format documentation
+
+# Generate test report
+sudo goss --gossfile /etc/goss/goss.yaml validate --format json > health-report.json
+```
+
+### Customizing Health Checks
+
+To add custom health checks, you can:
+
+1. **Extend the goss configuration** - Add tests to `/etc/goss/goss.yaml`
+2. **Create a custom goss file** and use: `GOSS_FILE=/path/to/custom.yaml healthcheck.sh`
+3. **Layer in your own goss config** via Containerfile
+
+Example custom test:
+```yaml
+# Add to /etc/goss/goss.yaml
+command:
+  "my-custom-check":
+    exit-status: 0
+    stdout:
+    - "healthy"
+```
 
 ## Updates and Rollbacks
 

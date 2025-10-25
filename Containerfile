@@ -8,6 +8,7 @@ FROM ${BASE_IMAGE}
 # Version pinning for reproducibility
 ARG K3S_VERSION=v1.31.4+k3s1
 ARG K3S_INSTALL_SCRIPT_URL=https://get.k3s.io
+ARG GOSS_VERSION=0.4.8
 
 # Metadata
 LABEL org.opencontainers.image.title="Nubita Bootc k3s"
@@ -28,6 +29,12 @@ RUN curl -sfL ${K3S_INSTALL_SCRIPT_URL} | \
     INSTALL_K3S_SKIP_START=true \
     INSTALL_K3S_SKIP_ENABLE=true \
     sh -
+
+# Download and install goss for health checks
+RUN ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/') && \
+    curl -fsSL https://github.com/goss-org/goss/releases/download/v${GOSS_VERSION}/goss-linux-${ARCH} \
+        -o /usr/local/bin/goss && \
+    chmod +x /usr/local/bin/goss
 
 # Create directory structure for k3s
 RUN mkdir -p /etc/rancher/k3s \
@@ -58,7 +65,10 @@ RUN systemctl enable k3s.service
 # Ostree commit
 RUN ostree container commit
 
-# Health check script (optional)
+# Copy goss health check configuration
+COPY config/goss.yaml /etc/goss/goss.yaml
+
+# Copy health check script wrapper for goss
 COPY scripts/healthcheck.sh /usr/local/bin/healthcheck.sh
 RUN chmod +x /usr/local/bin/healthcheck.sh
 

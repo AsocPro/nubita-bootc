@@ -117,9 +117,20 @@ sudo systemctl reboot
 
 ## Health Checks
 
+Built-in goss-based health validation for comprehensive cluster testing:
+
 ```bash
-# System health
+# Comprehensive health check using goss
 sudo /usr/local/bin/healthcheck.sh
+
+# Verbose output
+sudo /usr/local/bin/healthcheck.sh -v
+
+# With retry logic (useful during startup)
+sudo /usr/local/bin/healthcheck.sh -r 3 -s 10
+
+# JSON output for monitoring
+sudo /usr/local/bin/healthcheck.sh -f json
 
 # k3s status
 sudo systemctl status k3s
@@ -128,6 +139,8 @@ sudo systemctl status k3s
 sudo kubectl get nodes
 sudo kubectl get pods -A
 ```
+
+See [docs/BUILD.md](docs/BUILD.md) for detailed health check documentation.
 
 ## Troubleshooting
 
