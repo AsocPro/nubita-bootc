@@ -38,10 +38,12 @@ RUN mkdir -p /etc/rancher/k3s \
 
 # Download and install k3s binary
 # In ostree systems, install to /usr/bin instead of /usr/local/bin
+# Skip SELinux during build - contexts will be applied at boot via k3s-selinux package
 RUN curl -sfL ${K3S_INSTALL_SCRIPT_URL} | \
     INSTALL_K3S_VERSION=${K3S_VERSION} \
     INSTALL_K3S_SKIP_START=true \
     INSTALL_K3S_SKIP_ENABLE=true \
+    INSTALL_K3S_SKIP_SELINUX_RPM=true \
     INSTALL_K3S_BIN_DIR=/usr/bin \
     sh -
 
