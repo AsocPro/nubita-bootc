@@ -50,6 +50,12 @@ See [CLAUDE.md](CLAUDE.md) for current implementation status and progress.
 ## Documentation
 
 - [Build Guide](docs/BUILD.md) - Building and deploying the image
+- [Health Checks](docs/HEALTH-CHECKS.md) - Comprehensive validation system
+- [Phase 2: Longhorn](docs/PHASE2-LONGHORN.md) - Storage configuration
+- [Phase 3: TLS](docs/PHASE3-TLS.md) - Certificate management
+- [Phase 4: Monitoring](docs/PHASE4-MONITORING.md) - Prometheus and Grafana
+- [Phase 5: Authentik](docs/PHASE5-AUTHENTIK.md) - SSO/LDAP authentication
+- [Phase 6: Applications](docs/PHASE6-APPLICATIONS.md) - Gitea and Vaultwarden
 - [Initial Specification](docs/initialSpec.md) - Complete project specification
 - [Project Status](CLAUDE.md) - Implementation progress tracking
 
@@ -117,20 +123,20 @@ sudo systemctl reboot
 
 ## Health Checks
 
-Built-in goss-based health validation for comprehensive cluster testing:
+Built-in goss-based health validation for comprehensive cluster testing. The system validates **60+ tests** across all platform components:
 
 ```bash
-# Comprehensive health check using goss
+# Comprehensive health check using goss (60+ tests)
 sudo /usr/bin/healthcheck.sh
 
 # Verbose output
-sudo /usr/bin/healthcheck.sh -v
+sudo /usr/bin/healthcheck.sh --verbose
 
 # With retry logic (useful during startup)
-sudo /usr/bin/healthcheck.sh -r 3 -s 10
+sudo /usr/bin/healthcheck.sh --retries 3 --retry-delay 10
 
 # JSON output for monitoring
-sudo /usr/bin/healthcheck.sh -f json
+sudo /usr/bin/healthcheck.sh --format json
 
 # k3s status
 sudo systemctl status k3s
@@ -140,7 +146,17 @@ sudo kubectl get nodes
 sudo kubectl get pods -A
 ```
 
-See [docs/BUILD.md](docs/BUILD.md) for detailed health check documentation.
+**Health Check Coverage:**
+- Phase 1: k3s cluster, API server, DNS
+- Phase 2: Longhorn storage, PVCs
+- Phase 3: cert-manager, step-ca, TLS certificates
+- Phase 4: Prometheus, Grafana, Alertmanager
+- Phase 5: Authentik, PostgreSQL, Redis, OAuth blueprints
+- Phase 6: Gitea, Vaultwarden, databases
+- All ingress resources and TLS certificates
+- All HelmChart deployments
+
+See [docs/HEALTH-CHECKS.md](docs/HEALTH-CHECKS.md) for complete health check documentation.
 
 ## Troubleshooting
 

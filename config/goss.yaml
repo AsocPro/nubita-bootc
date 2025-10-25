@@ -102,3 +102,399 @@ dns:
   kubernetes.default.svc.cluster.local:
     resolvable: true
     timeout: 5000
+
+---
+# Phase 2: Longhorn Storage Health Checks
+
+# Longhorn namespace check
+command:
+  # Check Longhorn namespace exists
+  "kubectl get namespace longhorn-system":
+    exit-status: 0
+    timeout: 10000
+
+  # Check Longhorn manager pods are running
+  "kubectl get pods -n longhorn-system -l app=longhorn-manager -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "/Running/"
+    timeout: 10000
+
+  # Check Longhorn driver deployer is ready
+  "kubectl get pods -n longhorn-system -l app=longhorn-driver-deployer -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "/Running/"
+    timeout: 10000
+
+  # Check Longhorn StorageClass exists
+  "kubectl get storageclass longhorn":
+    exit-status: 0
+    timeout: 10000
+
+  # Check Longhorn UI deployment
+  "kubectl get deployment -n longhorn-system longhorn-ui -o jsonpath='{.status.availableReplicas}'":
+    exit-status: 0
+    stdout:
+    - "/^[1-9]/"
+    timeout: 10000
+
+---
+# Phase 3: TLS and Certificates Health Checks
+
+# cert-manager checks
+command:
+  # Check cert-manager namespace exists
+  "kubectl get namespace cert-manager":
+    exit-status: 0
+    timeout: 10000
+
+  # Check cert-manager controller is running
+  "kubectl get pods -n cert-manager -l app=cert-manager -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "/Running/"
+    timeout: 10000
+
+  # Check cert-manager webhook is running
+  "kubectl get pods -n cert-manager -l app=webhook -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "/Running/"
+    timeout: 10000
+
+  # Check cert-manager cainjector is running
+  "kubectl get pods -n cert-manager -l app=cainjector -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "/Running/"
+    timeout: 10000
+
+  # Check step-ca is running
+  "kubectl get pods -n cert-manager -l app.kubernetes.io/name=step-certificates -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "/Running/"
+    timeout: 10000
+
+  # Check ClusterIssuer exists and is ready
+  "kubectl get clusterissuer step-ca -o jsonpath='{.status.conditions[?(@.type==\"Ready\")].status}'":
+    exit-status: 0
+    stdout:
+    - "True"
+    timeout: 10000
+
+---
+# Phase 4: Monitoring Stack Health Checks
+
+# Prometheus and Grafana checks
+command:
+  # Check monitoring namespace exists
+  "kubectl get namespace monitoring":
+    exit-status: 0
+    timeout: 10000
+
+  # Check Prometheus is running
+  "kubectl get pods -n monitoring -l app.kubernetes.io/name=prometheus -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "/Running/"
+    timeout: 10000
+
+  # Check Grafana is running
+  "kubectl get pods -n monitoring -l app.kubernetes.io/name=grafana -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "/Running/"
+    timeout: 10000
+
+  # Check Alertmanager is running
+  "kubectl get pods -n monitoring -l app.kubernetes.io/name=alertmanager -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "/Running/"
+    timeout: 10000
+
+  # Check Prometheus operator is running
+  "kubectl get pods -n monitoring -l app.kubernetes.io/name=prometheus-operator -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "/Running/"
+    timeout: 10000
+
+  # Check node-exporter daemonset is ready
+  "kubectl get daemonset -n monitoring -l app.kubernetes.io/name=node-exporter -o jsonpath='{.status.numberReady}'":
+    exit-status: 0
+    stdout:
+    - "/^[1-9]/"
+    timeout: 10000
+
+  # Check kube-state-metrics is running
+  "kubectl get pods -n monitoring -l app.kubernetes.io/name=kube-state-metrics -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "/Running/"
+    timeout: 10000
+
+---
+# Phase 5: Authentik SSO/LDAP Health Checks
+
+# Authentik checks
+command:
+  # Check authentik namespace exists
+  "kubectl get namespace authentik":
+    exit-status: 0
+    timeout: 10000
+
+  # Check Authentik server is running
+  "kubectl get pods -n authentik -l app.kubernetes.io/component=server -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "/Running/"
+    timeout: 10000
+
+  # Check Authentik worker is running
+  "kubectl get pods -n authentik -l app.kubernetes.io/component=worker -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "/Running/"
+    timeout: 10000
+
+  # Check Authentik PostgreSQL is running
+  "kubectl get pods -n authentik -l app.kubernetes.io/name=postgresql -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "/Running/"
+    timeout: 10000
+
+  # Check Authentik Redis is running
+  "kubectl get pods -n authentik -l app.kubernetes.io/name=redis -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "/Running/"
+    timeout: 10000
+
+  # Check Authentik blueprints ConfigMap exists
+  "kubectl get configmap -n authentik authentik-blueprints":
+    exit-status: 0
+    timeout: 10000
+
+---
+# Phase 6: Gitea Health Checks
+
+# Gitea checks
+command:
+  # Check gitea namespace exists
+  "kubectl get namespace gitea":
+    exit-status: 0
+    timeout: 10000
+
+  # Check Gitea is running
+  "kubectl get pods -n gitea -l app.kubernetes.io/name=gitea -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "/Running/"
+    timeout: 10000
+
+  # Check Gitea PostgreSQL is running
+  "kubectl get pods -n gitea -l app.kubernetes.io/name=postgresql -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "/Running/"
+    timeout: 10000
+
+  # Check Gitea PVC exists
+  "kubectl get pvc -n gitea":
+    exit-status: 0
+    timeout: 10000
+
+---
+# Phase 6: Vaultwarden Health Checks
+
+# Vaultwarden checks
+command:
+  # Check vaultwarden namespace exists
+  "kubectl get namespace vaultwarden":
+    exit-status: 0
+    timeout: 10000
+
+  # Check Vaultwarden is running
+  "kubectl get pods -n vaultwarden -l app.kubernetes.io/name=vaultwarden -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "/Running/"
+    timeout: 10000
+
+  # Check Vaultwarden PVC exists
+  "kubectl get pvc -n vaultwarden":
+    exit-status: 0
+    timeout: 10000
+
+---
+# Ingress and Certificate Checks (All Phases)
+
+# Check ingress resources exist
+command:
+  # Longhorn ingress
+  "kubectl get ingress -n longhorn-system longhorn-ingress":
+    exit-status: 0
+    timeout: 10000
+
+  # Grafana ingress
+  "kubectl get ingress -n monitoring kube-prometheus-stack-grafana":
+    exit-status: 0
+    timeout: 10000
+
+  # Prometheus ingress
+  "kubectl get ingress -n monitoring kube-prometheus-stack-prometheus":
+    exit-status: 0
+    timeout: 10000
+
+  # Alertmanager ingress
+  "kubectl get ingress -n monitoring kube-prometheus-stack-alertmanager":
+    exit-status: 0
+    timeout: 10000
+
+  # Authentik ingress
+  "kubectl get ingress -n authentik":
+    exit-status: 0
+    timeout: 10000
+
+  # Gitea ingress
+  "kubectl get ingress -n gitea":
+    exit-status: 0
+    timeout: 10000
+
+  # Vaultwarden ingress
+  "kubectl get ingress -n vaultwarden":
+    exit-status: 0
+    timeout: 10000
+
+# Check TLS certificates are ready
+command:
+  # Longhorn certificate
+  "kubectl get certificate -n longhorn-system longhorn-tls -o jsonpath='{.status.conditions[?(@.type==\"Ready\")].status}'":
+    exit-status: 0
+    stdout:
+    - "True"
+    timeout: 10000
+
+  # Grafana certificate
+  "kubectl get certificate -n monitoring grafana-tls -o jsonpath='{.status.conditions[?(@.type==\"Ready\")].status}'":
+    exit-status: 0
+    stdout:
+    - "True"
+    timeout: 10000
+
+  # Prometheus certificate
+  "kubectl get certificate -n monitoring prometheus-tls -o jsonpath='{.status.conditions[?(@.type==\"Ready\")].status}'":
+    exit-status: 0
+    stdout:
+    - "True"
+    timeout: 10000
+
+  # Alertmanager certificate
+  "kubectl get certificate -n monitoring alertmanager-tls -o jsonpath='{.status.conditions[?(@.type==\"Ready\")].status}'":
+    exit-status: 0
+    stdout:
+    - "True"
+    timeout: 10000
+
+  # Authentik certificate
+  "kubectl get certificate -n authentik authentik-tls -o jsonpath='{.status.conditions[?(@.type==\"Ready\")].status}'":
+    exit-status: 0
+    stdout:
+    - "True"
+    timeout: 10000
+
+  # Gitea certificate
+  "kubectl get certificate -n gitea gitea-tls -o jsonpath='{.status.conditions[?(@.type==\"Ready\")].status}'":
+    exit-status: 0
+    stdout:
+    - "True"
+    timeout: 10000
+
+  # Vaultwarden certificate
+  "kubectl get certificate -n vaultwarden vaultwarden-tls -o jsonpath='{.status.conditions[?(@.type==\"Ready\")].status}'":
+    exit-status: 0
+    stdout:
+    - "True"
+    timeout: 10000
+
+---
+# HelmChart Auto-Deployment Checks
+
+# Verify all HelmCharts are deployed
+command:
+  # Check Longhorn HelmChart
+  "kubectl get helmchart -n kube-system longhorn -o jsonpath='{.status.jobName}'":
+    exit-status: 0
+    timeout: 10000
+
+  # Check cert-manager HelmChart
+  "kubectl get helmchart -n kube-system cert-manager -o jsonpath='{.status.jobName}'":
+    exit-status: 0
+    timeout: 10000
+
+  # Check step-ca HelmChart
+  "kubectl get helmchart -n kube-system step-ca -o jsonpath='{.status.jobName}'":
+    exit-status: 0
+    timeout: 10000
+
+  # Check kube-prometheus-stack HelmChart
+  "kubectl get helmchart -n kube-system kube-prometheus-stack -o jsonpath='{.status.jobName}'":
+    exit-status: 0
+    timeout: 10000
+
+  # Check Authentik HelmChart
+  "kubectl get helmchart -n kube-system authentik -o jsonpath='{.status.jobName}'":
+    exit-status: 0
+    timeout: 10000
+
+  # Check Gitea HelmChart
+  "kubectl get helmchart -n kube-system gitea -o jsonpath='{.status.jobName}'":
+    exit-status: 0
+    timeout: 10000
+
+  # Check Vaultwarden HelmChart
+  "kubectl get helmchart -n kube-system vaultwarden -o jsonpath='{.status.jobName}'":
+    exit-status: 0
+    timeout: 10000
+
+---
+# Storage and PVC Checks
+
+# Verify critical PVCs are bound
+command:
+  # Longhorn storage path exists
+  "test -d /var/lib/longhorn":
+    exit-status: 0
+    timeout: 5000
+
+  # Check Prometheus PVC
+  "kubectl get pvc -n monitoring -l app.kubernetes.io/name=prometheus -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "Bound"
+    timeout: 10000
+
+  # Check Grafana PVC
+  "kubectl get pvc -n monitoring -l app.kubernetes.io/name=grafana -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "Bound"
+    timeout: 10000
+
+  # Check Authentik PostgreSQL PVC
+  "kubectl get pvc -n authentik -l app.kubernetes.io/name=postgresql -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "Bound"
+    timeout: 10000
+
+  # Check Authentik Redis PVC
+  "kubectl get pvc -n authentik -l app.kubernetes.io/name=redis -o jsonpath='{.items[*].status.phase}'":
+    exit-status: 0
+    stdout:
+    - "Bound"
+    timeout: 10000
