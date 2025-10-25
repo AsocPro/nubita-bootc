@@ -21,7 +21,15 @@ RUN rpm-ostree install \
     curl \
     iptables \
     container-selinux \
+    policycoreutils-python-utils \
     && rpm-ostree cleanup -m
+
+# Install k3s-selinux policy for proper SELinux contexts
+RUN curl -fsSL https://rpm.rancher.io/k3s/stable/common/coreos/noarch/k3s-selinux-1.6-1.coreos.noarch.rpm \
+    -o /tmp/k3s-selinux.rpm && \
+    rpm-ostree install /tmp/k3s-selinux.rpm && \
+    rm -f /tmp/k3s-selinux.rpm && \
+    rpm-ostree cleanup -m
 
 # Create directory structure for k3s
 RUN mkdir -p /etc/rancher/k3s \
