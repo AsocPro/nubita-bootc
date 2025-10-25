@@ -1,0 +1,44 @@
+# Build artifacts
+*.tar
+*.oci
+output/
+build/
+
+# Custom CA certificates (keep directory structure but ignore actual certs)
+custom-ca/*.crt
+custom-ca/*.pem
+custom-ca/*.key
+!custom-ca/.gitkeep
+
+# Secrets and sensitive data
+*.env
+secrets/
+*.secret
+*.key
+*.pem
+
+# Container runtime
+.buildah/
+.podman/
+
+# Kubernetes configs (these will be generated)
+kubeconfig
+*.kubeconfig
+k3s.yaml
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp

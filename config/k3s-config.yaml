@@ -1,0 +1,31 @@
+# k3s Server Configuration
+# This configuration uses k3s defaults with minimal overrides
+
+# Write kubeconfig with appropriate permissions
+write-kubeconfig-mode: "0644"
+
+# Use default embedded components:
+# - Traefik for ingress
+# - Klipper for Helm chart deployments
+# - ServiceLB for LoadBalancer services
+# - Local-path for storage (until Longhorn is deployed)
+
+# Disable components (none - we use all defaults)
+# disable:
+#   - traefik
+#   - servicelb
+
+# Cluster CIDR (default is fine for most home networks)
+# cluster-cidr: "10.42.0.0/16"
+# service-cidr: "10.43.0.0/16"
+
+# TLS SANs for API server (add your hostname/IP if accessing remotely)
+# tls-san:
+#   - "nubita.local"
+#   - "192.168.1.100"
+
+# Node configuration
+# node-name: "nubita-node-1"
+
+# Data directory (default is fine)
+# data-dir: "/var/lib/rancher/k3s"
