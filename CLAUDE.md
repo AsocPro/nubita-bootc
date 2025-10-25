@@ -49,12 +49,16 @@ Building a bootc-based immutable OS image hosting a k3s Kubernetes cluster for h
 - [x] Comprehensive documentation (PHASE2-LONGHORN.md)
 
 **Files Created**:
-- manifests/longhorn/values.yaml
+- manifests/longhorn/helmchart.yaml (k3s HelmChart CRD)
+- manifests/longhorn/values.yaml (reference only)
 - manifests/longhorn/backup-secret.yaml.example
-- manifests/longhorn/deploy.sh
 - manifests/longhorn/test-pvc.yaml
 - manifests/longhorn/README.md
 - docs/PHASE2-LONGHORN.md
+
+**Containerfile Updated**:
+- Copies helmchart.yaml to /var/lib/rancher/k3s/server/manifests/longhorn.yaml
+- k3s Helm controller auto-deploys on boot
 
 ---
 
@@ -223,13 +227,15 @@ _None at this time_
   - Skip SELinux context application during build (INSTALL_K3S_SKIP_SELINUX_RPM=true)
   - SELinux contexts applied at boot time by systemd, not during image build
   - Build now compatible with immutable/ostree filesystem layout
-- **Phase 2 Complete**:
-  - Created minimal Longhorn Helm values for single-node deployment
+- **Phase 2 Complete** (GitOps Approach):
+  - Created Longhorn HelmChart manifest for k3s Helm controller
+  - Automatic deployment via k3s on first boot (no manual steps)
+  - HelmChart baked into bootc image at /var/lib/rancher/k3s/server/manifests/
   - Configured storage path to /var/lib/longhorn (created in Containerfile)
   - Single replica configuration for single-node cluster
   - Created backup secret template for S3/Backblaze encrypted backups
-  - Automated deployment script (manifests/longhorn/deploy.sh)
   - Test PVC manifest for validation
   - Comprehensive documentation (PHASE2-LONGHORN.md)
   - Multi-node expansion documented for future scaling
+  - Fully declarative and immutable deployment
 - Ready for Phase 3 (step-ca and cert-manager)

@@ -1,0 +1,90 @@
+# Longhorn HelmChart for k3s Helm Controller
+# This will be deployed automatically by k3s when placed in /var/lib/rancher/k3s/server/manifests/
+# See: https://docs.k3s.io/helm
+
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: longhorn
+  namespace: kube-system
+spec:
+  repo: https://charts.longhorn.io
+  chart: longhorn
+  targetNamespace: longhorn-system
+  createNamespace: true
+
+  # Longhorn configuration values
+  # Optimized for single-node k3s cluster
+  valuesContent: |-
+    # Persistence settings
+    persistence:
+      defaultClass: true
+      defaultClassReplicaCount: 1  # Single-node: only 1 replica
+      reclaimPolicy: Retain
+
+    # Default settings
+    defaultSettings:
+      # Storage path on the host
+      defaultDataPath: /var/lib/longhorn
+
+      # Single-node settings
+      replicaSoftAntiAffinity: false
+      replicaAutoBalance: disabled
+
+      # Backup configuration (optional - configure when S3 endpoint is ready)
+      # Uncomment and configure these when you're ready to enable backups:
+      # backupTarget: s3://bucket-name@region/
+      # backupTargetCredentialSecret: longhorn-backup-secret
+
+      # Performance tuning for home server
+      guaranteedEngineManagerCPU: 5
+      guaranteedReplicaManagerCPU: 5
+
+      # Storage overprovisioning (percentage)
+      storageOverProvisioningPercentage: 200
+      storageMinimalAvailablePercentage: 10
+
+      # Upgrade settings
+      upgradeChecker: true
+
+      # Allow volume creation even if replica count cannot be satisfied
+      allowRecurringJobWhileVolumeDetached: true
+
+    # Longhorn manager settings
+    longhornManager:
+      tolerations:
+      - key: "node-role.kubernetes.io/control-plane"
+        operator: "Exists"
+        effect: "NoSchedule"
+
+    # Longhorn driver settings
+    longhornDriver:
+      tolerations:
+      - key: "node-role.kubernetes.io/control-plane"
+        operator: "Exists"
+        effect: "NoSchedule"
+
+    # UI settings
+    longhornUI:
+      replicas: 1
+      tolerations:
+      - key: "node-role.kubernetes.io/control-plane"
+        operator: "Exists"
+        effect: "NoSchedule"
+
+    # Ingress for Longhorn UI (will be configured in Phase 3 with TLS)
+    ingress:
+      enabled: false  # Enable in Phase 3 with step-ca TLS
+      # host: longhorn.local
+      # ingressClassName: traefik
+      # annotations:
+      #   cert-manager.io/cluster-issuer: step-ca
+
+    # Resources - minimal for home server
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi

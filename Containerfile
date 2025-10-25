@@ -62,6 +62,12 @@ RUN ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/') && \
 # Copy k3s configuration
 COPY config/k3s-config.yaml /etc/rancher/k3s/config.yaml
 
+# Copy k3s auto-deploy manifests (Helm charts, etc.)
+# k3s will automatically deploy these on startup
+RUN mkdir -p /var/lib/rancher/k3s/server/manifests
+COPY manifests/longhorn/helmchart.yaml /var/lib/rancher/k3s/server/manifests/longhorn.yaml
+COPY manifests/longhorn/backup-secret.yaml.example /etc/longhorn/backup-secret.yaml.example
+
 # Copy systemd service file for k3s
 COPY systemd/k3s.service /etc/systemd/system/k3s.service
 

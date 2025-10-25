@@ -1,19 +1,19 @@
 # Longhorn Storage Manifests
 
-Phase 2: Distributed block storage with optional encrypted backups.
+Phase 2: Distributed block storage with automatic deployment via k3s Helm controller.
 
 ## Files
 
-- **values.yaml**: Minimal Helm values for single-node Longhorn deployment
+- **helmchart.yaml**: k3s HelmChart manifest (auto-deployed by k3s)
+- **values.yaml**: Reference Helm values (deprecated - use helmchart.yaml)
 - **backup-secret.yaml.example**: Template for S3 backup credentials
-- **deploy.sh**: Automated deployment script
 - **test-pvc.yaml**: Test PVC and pod to verify Longhorn works
 
 ## Quick Deploy
 
-```bash
-./deploy.sh
-```
+**No deployment needed!** Longhorn is automatically deployed by k3s when the system boots.
+
+The `helmchart.yaml` is copied to `/var/lib/rancher/k3s/server/manifests/longhorn.yaml` in the bootc image, and k3s's Helm controller deploys it automatically.
 
 ## Configuration
 
@@ -33,18 +33,15 @@ Phase 2: Distributed block storage with optional encrypted backups.
    kubectl apply -f backup-secret.yaml
    ```
 
-2. Uncomment backup settings in values.yaml:
+2. Uncomment backup settings in `helmchart.yaml`:
    ```yaml
    backupTarget: s3://bucket@region/
    backupTargetCredentialSecret: longhorn-backup-secret
    ```
 
-3. Redeploy:
-   ```bash
-   helm upgrade longhorn longhorn/longhorn \
-       --namespace longhorn-system \
-       --values values.yaml
-   ```
+3. Either:
+   - **Rebuild bootc image** with updated helmchart.yaml, OR
+   - **Live update**: `kubectl edit helmchart longhorn -n kube-system`
 
 ## Testing
 

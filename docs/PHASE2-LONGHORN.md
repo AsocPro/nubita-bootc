@@ -13,10 +13,9 @@ Phase 2 adds Longhorn distributed block storage to the k3s cluster, providing pe
 
 ## Quick Start
 
-```bash
-cd manifests/longhorn
-./deploy.sh
-```
+Longhorn is automatically deployed by k3s on first boot! The HelmChart manifest is baked into the bootc image at `/var/lib/rancher/k3s/server/manifests/longhorn.yaml`.
+
+**No manual deployment needed** - just boot the system and k3s will deploy Longhorn automatically.
 
 ## What Gets Deployed
 
@@ -34,38 +33,37 @@ cd manifests/longhorn
 - **Storage Class**: `longhorn` (set as default)
 - **Reclaim Policy**: Retain (data persists after PVC deletion)
 
-## Manual Deployment
+## How It Works
 
-If you prefer manual deployment:
+k3s has a built-in Helm controller that automatically deploys HelmChart CRDs placed in `/var/lib/rancher/k3s/server/manifests/`.
 
-```bash
-# Add Longhorn Helm repo
-helm repo add longhorn https://charts.longhorn.io
-helm repo update
+**On first boot:**
+1. k3s starts and scans `/var/lib/rancher/k3s/server/manifests/`
+2. Finds `longhorn.yaml` (HelmChart manifest)
+3. Automatically adds the Longhorn Helm repo
+4. Deploys Longhorn to the `longhorn-system` namespace
+5. Creates the default StorageClass
 
-# Create namespace
-kubectl create namespace longhorn-system
-
-# Optional: Create backup secret (see Backup Configuration below)
-kubectl apply -f backup-secret.yaml
-
-# Install Longhorn
-helm install longhorn longhorn/longhorn \
-    --namespace longhorn-system \
-    --values values.yaml \
-    --create-namespace
-```
+**Benefits:**
+- GitOps-ready: Manifests are version controlled in the bootc image
+- Automatic deployment: No manual steps required
+- Declarative: Everything defined in YAML
+- Immutable: Can't accidentally modify deployed state
 
 ## Configuration
 
-### Basic Settings (values.yaml)
+### Basic Settings
 
-The Longhorn configuration is minimal and optimized for single-node operation:
+The Longhorn configuration is embedded in `manifests/longhorn/helmchart.yaml` and is minimal, optimized for single-node operation:
 
 - **Single replica**: Perfect for single-node clusters
 - **Storage overprovisioning**: 200% (allows flexible volume creation)
 - **Minimal resources**: CPU/memory limits suitable for home servers
 - **Tolerations**: Allows running on control-plane nodes
+
+### Modifying Configuration
+
+To change Longhorn settings, edit `manifests/longhorn/helmchart.yaml` and rebuild the bootc image. The new configuration will be applied on next deployment.
 
 ### Backup Configuration (Optional)
 
@@ -87,9 +85,9 @@ nano backup-secret.yaml
 kubectl apply -f backup-secret.yaml
 ```
 
-#### Step 3: Update values.yaml
+#### Step 3: Update helmchart.yaml
 
-Uncomment the backup settings:
+Edit `manifests/longhorn/helmchart.yaml` and uncomment the backup settings:
 
 ```yaml
 defaultSettings:
@@ -97,12 +95,20 @@ defaultSettings:
   backupTargetCredentialSecret: longhorn-backup-secret
 ```
 
-#### Step 4: Update Longhorn
+#### Step 4: Rebuild and Redeploy
+
+Rebuild the bootc image with the updated configuration:
 
 ```bash
-helm upgrade longhorn longhorn/longhorn \
-    --namespace longhorn-system \
-    --values values.yaml
+./scripts/build.sh
+# Then redeploy the image to your system
+```
+
+Alternatively, you can update the running HelmChart:
+
+```bash
+kubectl edit helmchart longhorn -n kube-system
+# Add the backupTarget and backupTargetCredentialSecret settings
 ```
 
 ### Supported Backup Targets
