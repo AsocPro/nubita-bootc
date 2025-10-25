@@ -72,13 +72,15 @@ spec:
         operator: "Exists"
         effect: "NoSchedule"
 
-    # Ingress for Longhorn UI (will be configured in Phase 3 with TLS)
+    # Ingress for Longhorn UI with automatic TLS (Phase 3)
     ingress:
-      enabled: false  # Enable in Phase 3 with step-ca TLS
-      # host: longhorn.local
-      # ingressClassName: traefik
-      # annotations:
-      #   cert-manager.io/cluster-issuer: step-ca
+      enabled: true
+      host: longhorn.local
+      ingressClassName: traefik
+      annotations:
+        cert-manager.io/cluster-issuer: step-ca
+      tls: true
+      tlsSecret: longhorn-ui-tls
 
     # Resources - minimal for home server
     resources:

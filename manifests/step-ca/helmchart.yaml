@@ -1,0 +1,109 @@
+# step-certificates HelmChart for k3s Helm Controller
+# Internal Certificate Authority for automatic TLS
+# See: https://smallstep.com/docs/step-ca
+
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: step-certificates
+  namespace: kube-system
+spec:
+  repo: https://smallstep.github.io/helm-charts
+  chart: step-certificates
+  targetNamespace: step-ca
+  createNamespace: true
+
+  # step-ca configuration
+  valuesContent: |-
+    # Inject CA configuration
+    inject:
+      enabled: true
+      # Creates a ConfigMap with CA certificates
+      config:
+        files:
+          ca.json: |
+            {
+              "root": "/home/step/certs/root_ca.crt",
+              "federatedRoots": null,
+              "crt": "/home/step/certs/intermediate_ca.crt",
+              "key": "/home/step/secrets/intermediate_ca_key",
+              "address": ":9000",
+              "dnsNames": ["step-certificates.step-ca.svc.cluster.local"],
+              "logger": {"format": "text"},
+              "db": {
+                "type": "badgerv2",
+                "dataSource": "/home/step/db"
+              },
+              "authority": {
+                "provisioners": [
+                  {
+                    "type": "JWK",
+                    "name": "admin",
+                    "key": {
+                      "use": "sig",
+                      "kty": "EC",
+                      "kid": "admin",
+                      "crv": "P-256",
+                      "alg": "ES256"
+                    },
+                    "encryptedKey": "placeholder-will-be-generated"
+                  }
+                ]
+              },
+              "tls": {
+                "cipherSuites": [
+                  "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305",
+                  "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256"
+                ],
+                "minVersion": 1.2,
+                "maxVersion": 1.3,
+                "renegotiation": false
+              }
+            }
+          defaults.json: |
+            {
+              "ca-url": "https://step-certificates.step-ca.svc.cluster.local",
+              "ca-config": "/home/step/config/ca.json",
+              "fingerprint": "",
+              "root": "/home/step/certs/root_ca.crt"
+            }
+
+    # Bootstrap configuration
+    # This will auto-generate CA certificates on first run
+    bootstrap:
+      enabled: true
+      configmaps: true
+      secrets: true
+
+    # Service configuration
+    service:
+      type: ClusterIP
+      port: 443
+      targetPort: 9000
+
+    # Resources for home server
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+
+    # Persistence for CA database
+    persistence:
+      enabled: true
+      storageClass: longhorn
+      size: 1Gi
+      accessMode: ReadWriteOnce
+
+    # CA certificate validity periods
+    ca:
+      # Root CA valid for 10 years
+      root:
+        validity: 87600h
+      # Intermediate CA valid for 5 years
+      intermediate:
+        validity: 43800h
+      # Issued certificates valid for 24 hours (auto-renewed)
+      defaultCertValidity: 24h

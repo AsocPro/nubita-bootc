@@ -1,0 +1,59 @@
+# cert-manager HelmChart for k3s Helm Controller
+# Automatically deploys cert-manager for certificate management
+# See: https://cert-manager.io/docs/
+
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: cert-manager
+  namespace: kube-system
+spec:
+  repo: https://charts.jetstack.io
+  chart: cert-manager
+  targetNamespace: cert-manager
+  createNamespace: true
+
+  # cert-manager configuration
+  valuesContent: |-
+    # Install CRDs with the chart
+    installCRDs: true
+
+    # Minimal resources for home server
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+
+    # Webhook configuration
+    webhook:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          cpu: 50m
+          memory: 64Mi
+
+    # CA Injector configuration
+    cainjector:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          cpu: 100m
+          memory: 128Mi
+
+    # Enable Prometheus metrics
+    prometheus:
+      enabled: true
+      servicemonitor:
+        enabled: true
+
+    # Global settings
+    global:
+      leaderElection:
+        namespace: cert-manager

@@ -65,8 +65,15 @@ COPY config/k3s-config.yaml /etc/rancher/k3s/config.yaml
 # Copy k3s auto-deploy manifests (Helm charts, etc.)
 # k3s will automatically deploy these on startup
 RUN mkdir -p /var/lib/rancher/k3s/server/manifests
+
+# Phase 2: Longhorn storage
 COPY manifests/longhorn/helmchart.yaml /var/lib/rancher/k3s/server/manifests/longhorn.yaml
 COPY manifests/longhorn/backup-secret.yaml.example /etc/longhorn/backup-secret.yaml.example
+
+# Phase 3: cert-manager and step-ca for TLS
+COPY manifests/cert-manager/helmchart.yaml /var/lib/rancher/k3s/server/manifests/cert-manager.yaml
+COPY manifests/step-ca/helmchart.yaml /var/lib/rancher/k3s/server/manifests/step-ca.yaml
+COPY manifests/step-ca/clusterissuer.yaml /var/lib/rancher/k3s/server/manifests/step-ca-clusterissuer.yaml
 
 # Copy systemd service file for k3s
 COPY systemd/k3s.service /etc/systemd/system/k3s.service

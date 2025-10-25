@@ -8,7 +8,7 @@ Building a bootc-based immutable OS image hosting a k3s Kubernetes cluster for h
 ## Current Status
 
 **Last Updated**: 2025-10-25
-**Current Phase**: Phase 2 - Storage and Persistence
+**Current Phase**: Phase 3 - Networking and Security
 **Status**: ✅ Complete (ready for deployment)
 
 ## Implementation Progress
@@ -63,15 +63,30 @@ Building a bootc-based immutable OS image hosting a k3s Kubernetes cluster for h
 ---
 
 ### Phase 3: Networking and Security Basics (Core Infrastructure)
-**Status**: ⚪ Not Started
+**Status**: ✅ Complete (ready for deployment)
 **Goal**: Secure ingress with Traefik and step-ca
+**Completed**: 2025-10-25
 
 **Tasks**:
-- [ ] Deploy step-ca via Helm
-- [ ] Deploy cert-manager with CRDs
-- [ ] Configure Traefik (k3s default) with IngressClass
-- [ ] Create ClusterIssuer for step-ca integration
-- [ ] Test HTTPS service with auto-TLS
+- [x] Create cert-manager HelmChart with CRDs
+- [x] Create step-ca HelmChart with auto-bootstrap
+- [x] Create ClusterIssuer for step-ca integration
+- [x] Update Longhorn ingress to use step-ca TLS
+- [x] Configure automatic certificate issuance and renewal
+- [x] Comprehensive documentation (PHASE3-TLS.md)
+
+**Files Created**:
+- manifests/cert-manager/helmchart.yaml (k3s HelmChart CRD)
+- manifests/cert-manager/README.md
+- manifests/step-ca/helmchart.yaml (k3s HelmChart CRD)
+- manifests/step-ca/clusterissuer.yaml (connects cert-manager to step-ca)
+- manifests/step-ca/README.md
+- docs/PHASE3-TLS.md
+
+**Containerfile Updated**:
+- Copies all Phase 3 manifests to /var/lib/rancher/k3s/server/manifests/
+- Auto-deployed by k3s on boot
+- Longhorn UI now has automatic HTTPS
 
 ---
 
@@ -144,8 +159,8 @@ Building a bootc-based immutable OS image hosting a k3s Kubernetes cluster for h
 - [x] Update/rollback procedures (documented in BUILD.md)
 
 ### Kubernetes Manifests
-- [x] Phase 2: Longhorn Helm values.yaml, deployment script, backup secret template
-- [ ] Phase 3: step-ca, cert-manager, ClusterIssuer configs
+- [x] Phase 2: Longhorn HelmChart, backup secret template
+- [x] Phase 3: cert-manager HelmChart, step-ca HelmChart, ClusterIssuer
 - [ ] Phase 4: kube-prometheus-stack values.yaml
 - [ ] Phase 5: Authentik Helm values.yaml
 - [ ] Phase 6: Gitea, Vaultwarden Helm values.yaml
@@ -187,11 +202,13 @@ _None at this time_
 ## Next Steps
 
 1. ✅ Complete Phase 1: Base cluster setup (code complete)
-2. ✅ Complete Phase 2: Longhorn storage manifests (ready to deploy)
-3. Build and deploy bootc image to validate Phase 1 (see docs/VALIDATION.md)
-4. Deploy Longhorn to cluster (see docs/PHASE2-LONGHORN.md)
-5. Begin Phase 3: step-ca and cert-manager for TLS
-6. Test immutable OS update/rollback with ostree
+2. ✅ Complete Phase 2: Longhorn storage manifests (GitOps auto-deploy)
+3. ✅ Complete Phase 3: TLS with cert-manager and step-ca (GitOps auto-deploy)
+4. Build and deploy bootc image to validate Phases 1-3 (see docs/VALIDATION.md)
+5. Verify automatic deployment of Longhorn, cert-manager, step-ca
+6. Test Longhorn UI with automatic HTTPS (https://longhorn.local)
+7. Begin Phase 4: Prometheus and Grafana for monitoring
+8. Test immutable OS update/rollback with ostree
 
 ---
 
@@ -238,4 +255,15 @@ _None at this time_
   - Comprehensive documentation (PHASE2-LONGHORN.md)
   - Multi-node expansion documented for future scaling
   - Fully declarative and immutable deployment
-- Ready for Phase 3 (step-ca and cert-manager)
+- **Phase 3 Complete** (GitOps Approach):
+  - Created cert-manager HelmChart for automatic certificate management
+  - Created step-ca HelmChart for internal Certificate Authority
+  - Auto-bootstrap CA certificates on first deployment
+  - ClusterIssuer connects cert-manager to step-ca
+  - Updated Longhorn ingress to use automatic TLS
+  - All services can now get automatic HTTPS certificates
+  - Certificate validity: 24 hours with auto-renewal
+  - Root CA: 10 years, Intermediate CA: 5 years
+  - Comprehensive documentation (PHASE3-TLS.md)
+  - All manifests baked into bootc image for GitOps deployment
+- Ready for Phase 4 (Prometheus and Grafana monitoring)
