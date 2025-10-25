@@ -206,5 +206,7 @@ _None at this time_
   - Changed all binaries to install to /usr/bin (proper location for ostree)
   - Updated k3s, goss, and healthcheck.sh installation paths
   - Updated systemd service, goss config, and all documentation
+  - Added k3s-selinux package for proper SELinux contexts
+  - Added policycoreutils-python-utils for SELinux management
   - Build now compatible with immutable/ostree filesystem layout
 - Ready for Phase 2
