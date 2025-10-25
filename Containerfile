@@ -82,6 +82,10 @@ COPY manifests/kube-prometheus-stack/helmchart.yaml /var/lib/rancher/k3s/server/
 COPY manifests/authentik/blueprint-configmap.yaml /var/lib/rancher/k3s/server/manifests/authentik-blueprints.yaml
 COPY manifests/authentik/helmchart.yaml /var/lib/rancher/k3s/server/manifests/authentik.yaml
 
+# Phase 6: Core applications with SSO
+COPY manifests/gitea/helmchart.yaml /var/lib/rancher/k3s/server/manifests/gitea.yaml
+COPY manifests/vaultwarden/helmchart.yaml /var/lib/rancher/k3s/server/manifests/vaultwarden.yaml
+
 # Copy systemd service file for k3s
 COPY systemd/k3s.service /etc/systemd/system/k3s.service
 

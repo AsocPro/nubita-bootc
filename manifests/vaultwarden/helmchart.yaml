@@ -1,0 +1,119 @@
+# Vaultwarden HelmChart for k3s Helm Controller
+# Bitwarden-compatible password manager
+# See: https://github.com/guerzon/vaultwarden
+
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: vaultwarden
+  namespace: kube-system
+spec:
+  repo: https://guerzon.github.io/vaultwarden
+  chart: vaultwarden
+  targetNamespace: vaultwarden
+  createNamespace: true
+
+  # Vaultwarden configuration
+  valuesContent: |-
+    # Domain configuration
+    domain: "https://vaultwarden.local"
+
+    # Vaultwarden settings
+    vaultwarden:
+      # Allow new signups (disable after creating accounts)
+      signupsAllowed: true
+      # Require email verification
+      signupsVerify: false
+      # Show password hint
+      showPasswordHint: true
+      # Organization creation
+      orgCreationUsers: all
+
+      # Admin panel
+      # Generate token: openssl rand -base64 48
+      adminToken: "CHANGE-ME-TO-RANDOM-TOKEN"  # Change this!
+
+      # SMTP for email (optional but recommended)
+      # smtp:
+      #   host: smtp.gmail.com
+      #   port: 587
+      #   from: vaultwarden@yourdomain.com
+      #   username: your-email@gmail.com
+      #   password: your-app-password
+      #   security: starttls
+
+      # SSO configuration (Authentik)
+      # OAuth provider is auto-configured via Authentik blueprint
+      # Replace CLIENT_SECRET with value from Authentik UI
+      sso:
+        enabled: true
+        clientId: "vaultwarden"
+        clientSecret: "AUTHENTIK_CLIENT_SECRET"
+        authorityUrl: "https://authentik.local/application/o/vaultwarden/.well-known/openid-configuration"
+        # SSO only mode (users can only login via SSO)
+        ssoOnly: false
+
+    # Ingress with automatic TLS
+    ingress:
+      enabled: true
+      className: traefik
+      annotations:
+        cert-manager.io/cluster-issuer: step-ca
+      hostname: vaultwarden.local
+      tls:
+        - secretName: vaultwarden-tls
+          hosts:
+            - vaultwarden.local
+
+    # Persistence for vault data
+    persistence:
+      enabled: true
+      storageClass: longhorn
+      size: 5Gi
+      accessMode: ReadWriteOnce
+
+    # Database - SQLite by default (simple for home use)
+    # For PostgreSQL, uncomment and configure:
+    # database:
+    #   type: postgresql
+    #   host: vaultwarden-postgresql
+    #   port: 5432
+    #   database: vaultwarden
+    #   username: vaultwarden
+    #   password: "changeme"
+
+    # Resources for home server
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+
+    # Security context
+    podSecurityContext:
+      fsGroup: 1000
+      runAsUser: 1000
+      runAsGroup: 1000
+
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+
+    # Service
+    service:
+      type: ClusterIP
+      port: 80
+
+    # Websocket support for real-time sync
+    websocket:
+      enabled: true
+      port: 3012
+
+    # Prometheus metrics (via ServiceMonitor)
+    # Note: Vaultwarden doesn't expose metrics natively
+    # serviceMonitor:
+    #   enabled: false

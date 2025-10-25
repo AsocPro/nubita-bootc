@@ -52,3 +52,95 @@ data:
           meta_launch_url: https://grafana.local
           policy_engine_mode: any
           open_in_new_tab: true
+
+  gitea-oauth.yaml: |
+    # Authentik Blueprint: Gitea OAuth Provider
+    # Automatically creates OAuth provider and application for Gitea SSO
+
+    version: 1
+    metadata:
+      name: Gitea OAuth Provider
+      labels:
+        blueprints.goauthentik.io/instantiate: "true"
+
+    entries:
+      # OAuth2 Provider for Gitea
+      - model: authentik_providers_oauth2.oauth2provider
+        id: gitea-provider
+        identifiers:
+          name: Gitea
+        attrs:
+          name: Gitea
+          client_type: confidential
+          client_id: gitea
+          # Auto-generated client_secret on first run
+          # To retrieve: Admin UI → Applications → Providers → Gitea → View details
+          authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+          redirect_uris: |
+            https://gitea.local/user/oauth2/authentik/callback
+          signing_key: !Find [authentik_crypto.certificatekeypair, [name, "authentik Self-signed Certificate"]]
+          property_mappings:
+            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
+            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, email]]
+            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
+
+      # Application for Gitea
+      - model: authentik_core.application
+        id: gitea-app
+        identifiers:
+          slug: gitea
+        attrs:
+          name: Gitea
+          slug: gitea
+          provider: !KeyOf gitea-provider
+          meta_icon: https://gitea.com/assets/img/logo.svg
+          meta_description: "Self-hosted Git service"
+          meta_launch_url: https://gitea.local
+          policy_engine_mode: any
+          open_in_new_tab: true
+
+  vaultwarden-oauth.yaml: |
+    # Authentik Blueprint: Vaultwarden OAuth Provider
+    # Automatically creates OAuth provider and application for Vaultwarden SSO
+
+    version: 1
+    metadata:
+      name: Vaultwarden OAuth Provider
+      labels:
+        blueprints.goauthentik.io/instantiate: "true"
+
+    entries:
+      # OAuth2 Provider for Vaultwarden
+      - model: authentik_providers_oauth2.oauth2provider
+        id: vaultwarden-provider
+        identifiers:
+          name: Vaultwarden
+        attrs:
+          name: Vaultwarden
+          client_type: confidential
+          client_id: vaultwarden
+          # Auto-generated client_secret on first run
+          # To retrieve: Admin UI → Applications → Providers → Vaultwarden → View details
+          authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+          redirect_uris: |
+            https://vaultwarden.local/identity/connect/oidc-signin
+          signing_key: !Find [authentik_crypto.certificatekeypair, [name, "authentik Self-signed Certificate"]]
+          property_mappings:
+            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
+            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, email]]
+            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
+
+      # Application for Vaultwarden
+      - model: authentik_core.application
+        id: vaultwarden-app
+        identifiers:
+          slug: vaultwarden
+        attrs:
+          name: Vaultwarden
+          slug: vaultwarden
+          provider: !KeyOf vaultwarden-provider
+          meta_icon: https://github.com/bitwarden.png
+          meta_description: "Password manager"
+          meta_launch_url: https://vaultwarden.local
+          policy_engine_mode: any
+          open_in_new_tab: true

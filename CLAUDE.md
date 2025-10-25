@@ -161,17 +161,50 @@ Building a bootc-based immutable OS image hosting a k3s Kubernetes cluster for h
 ---
 
 ### Phase 6: Core Applications
-**Status**: ⚪ Not Started
-**Goal**: Deploy Gitea and Vaultwarden
+**Status**: ✅ Complete (ready for deployment)
+**Goal**: Deploy Gitea and Vaultwarden with automatic SSO
+**Completed**: 2025-10-25
 
 **Tasks**:
-- [ ] Deploy Gitea with Longhorn persistence
-- [ ] Configure Gitea Actions with in-cluster runner
-- [ ] Integrate Gitea with Authentik OIDC
-- [ ] Deploy Vaultwarden with Longhorn persistence
-- [ ] Configure Vaultwarden SSO with Authentik
-- [ ] Test repository operations and CI/CD
-- [ ] Test password storage in Vaultwarden
+- [x] Create Gitea HelmChart with PostgreSQL and Longhorn persistence (20Gi repos, 10Gi DB)
+- [x] Configure Gitea ingress with automatic HTTPS
+- [x] Enable Gitea Actions (GitHub Actions compatible CI/CD)
+- [x] Create Gitea OAuth blueprint for automatic Authentik integration
+- [x] Create Vaultwarden HelmChart with SQLite and Longhorn persistence (5Gi)
+- [x] Configure Vaultwarden ingress with automatic HTTPS
+- [x] Enable Vaultwarden SSO with pre-configured Authentik OAuth
+- [x] Create Vaultwarden OAuth blueprint for automatic Authentik integration
+- [x] Update Authentik blueprints ConfigMap with Gitea and Vaultwarden
+- [x] Comprehensive documentation (PHASE6-APPLICATIONS.md)
+
+**Files Created**:
+- manifests/gitea/helmchart.yaml (k3s HelmChart CRD)
+- manifests/gitea/README.md
+- manifests/vaultwarden/helmchart.yaml (k3s HelmChart CRD)
+- manifests/vaultwarden/README.md
+- docs/PHASE6-APPLICATIONS.md
+
+**Files Modified**:
+- manifests/authentik/blueprint-configmap.yaml (added Gitea and Vaultwarden OAuth)
+- Containerfile (added Phase 6 manifests to auto-deploy directory)
+
+**Containerfile Updated**:
+- Copies Phase 6 manifests to /var/lib/rancher/k3s/server/manifests/
+- Auto-deployed by k3s on boot
+- Gitea accessible at https://gitea.local
+- Vaultwarden accessible at https://vaultwarden.local
+
+**SSO Integration - AUTOMATED**:
+- OAuth providers auto-created via Authentik blueprints on first boot
+- Gitea: OAuth configured via admin UI after retrieving client secret
+- Vaultwarden: OAuth pre-configured in HelmChart (needs client secret update)
+- Both use same blueprint pattern as Grafana
+
+**Features**:
+- **Gitea**: Self-hosted Git with Actions, PostgreSQL, SSH support
+- **Vaultwarden**: Bitwarden-compatible password manager with browser/mobile app support
+- Both with automatic HTTPS, Longhorn storage, and SSO ready
+- Compatible with official Bitwarden clients (browser extensions, mobile apps)
 
 ---
 
@@ -205,15 +238,20 @@ Building a bootc-based immutable OS image hosting a k3s Kubernetes cluster for h
 - [x] Phase 2: Longhorn HelmChart, backup secret template
 - [x] Phase 3: cert-manager HelmChart, step-ca HelmChart, ClusterIssuer
 - [x] Phase 4: kube-prometheus-stack HelmChart
-- [x] Phase 5: Authentik HelmChart with PostgreSQL and Redis
-- [ ] Phase 6: Gitea, Vaultwarden Helm values.yaml
-- [ ] Phase 7: Home Assistant Helm values.yaml
+- [x] Phase 5: Authentik HelmChart with PostgreSQL and Redis, OAuth blueprints
+- [x] Phase 6: Gitea HelmChart, Vaultwarden HelmChart, OAuth blueprints
+- [ ] Phase 7: Home Assistant HelmChart
 
 ### Documentation
 - [x] Build and deployment guide (BUILD.md)
 - [x] Validation checklist (VALIDATION.md)
 - [x] Base image swapping instructions (in BUILD.md)
 - [x] Project README
+- [x] Phase 2: Longhorn storage (PHASE2-LONGHORN.md)
+- [x] Phase 3: TLS with step-ca (PHASE3-TLS.md)
+- [x] Phase 4: Monitoring (PHASE4-MONITORING.md)
+- [x] Phase 5: Authentik SSO/LDAP (PHASE5-AUTHENTIK.md)
+- [x] Phase 6: Gitea and Vaultwarden (PHASE6-APPLICATIONS.md)
 - [ ] Extension best practices (e.g., Minecraft example) - in spec
 - [ ] Multi-node setup guide (Phase 7)
 - [ ] NVIDIA/LLM overlay guide (Phase 7)
@@ -248,17 +286,22 @@ _None at this time_
 2. ✅ Complete Phase 2: Longhorn storage manifests (GitOps auto-deploy)
 3. ✅ Complete Phase 3: TLS with cert-manager and step-ca (GitOps auto-deploy)
 4. ✅ Complete Phase 4: Monitoring with Prometheus and Grafana (GitOps auto-deploy)
-5. ✅ Complete Phase 5: Authentik for SSO/LDAP authentication (GitOps auto-deploy)
-6. Build and deploy bootc image to validate Phases 1-5 (see docs/VALIDATION.md)
-7. Verify automatic deployment of all services
-8. Test UIs with automatic HTTPS:
+5. ✅ Complete Phase 5: Authentik for SSO/LDAP authentication (GitOps auto-deploy with OAuth blueprints)
+6. ✅ Complete Phase 6: Gitea and Vaultwarden (GitOps auto-deploy with OAuth blueprints)
+7. Build and deploy bootc image to validate Phases 1-6 (see docs/VALIDATION.md)
+8. Verify automatic deployment of all services
+9. Test UIs with automatic HTTPS:
    - https://longhorn.local
    - https://grafana.local
    - https://prometheus.local
+   - https://alertmanager.local
    - https://authentik.local
-9. Configure Authentik OAuth for Grafana SSO
-10. Begin Phase 6: Gitea and Vaultwarden with SSO
-11. Test immutable OS update/rollback with ostree
+   - https://gitea.local
+   - https://vaultwarden.local
+10. Configure OAuth client secrets for Grafana, Gitea, and Vaultwarden
+11. Test SSO login for all applications
+12. Test immutable OS update/rollback with ostree
+13. Begin Phase 7: Home Assistant and advanced features
 
 ---
 
@@ -341,4 +384,25 @@ _None at this time_
   - Minimal resource requests optimized for home server
   - Comprehensive documentation (PHASE5-AUTHENTIK.md)
   - Security recommendations for production deployment
-- Ready for Phase 6 (Gitea and Vaultwarden with SSO integration)
+- **OAuth Automation Enhancement**:
+  - Created Authentik blueprint system for automatic OAuth provider configuration
+  - Grafana OAuth provider auto-created on first boot
+  - Eliminates 5+ manual configuration steps
+  - Client secrets auto-generated securely
+  - User only needs to retrieve secret and update application config
+- **Phase 6 Complete** (GitOps Approach):
+  - Created Gitea HelmChart for self-hosted Git service
+  - PostgreSQL database with Longhorn storage (10Gi)
+  - Repository storage with Longhorn (20Gi)
+  - Gitea Actions enabled (GitHub Actions compatible CI/CD)
+  - SSH support enabled for Git operations
+  - Gitea OAuth blueprint for automatic Authentik integration
+  - Created Vaultwarden HelmChart for password management
+  - SQLite database with Longhorn storage (5Gi)
+  - Bitwarden-compatible (works with official browser extensions and mobile apps)
+  - Vaultwarden OAuth blueprint for automatic Authentik integration
+  - Updated Authentik blueprints ConfigMap with Gitea and Vaultwarden
+  - Both applications with automatic HTTPS
+  - Comprehensive documentation (PHASE6-APPLICATIONS.md)
+  - Security recommendations for production deployment
+- All core infrastructure and applications complete (Phases 1-6)

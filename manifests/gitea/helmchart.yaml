@@ -1,0 +1,151 @@
+# Gitea HelmChart for k3s Helm Controller
+# Self-hosted Git service with Actions support
+# See: https://gitea.com/gitea/helm-chart
+
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: gitea
+  namespace: kube-system
+spec:
+  repo: https://dl.gitea.com/charts/
+  chart: gitea
+  targetNamespace: gitea
+  createNamespace: true
+
+  # Gitea configuration
+  valuesContent: |-
+    # Global settings
+    global:
+      storageClass: longhorn
+
+    # Gitea application configuration
+    gitea:
+      # Admin user (created on first boot)
+      admin:
+        username: "gitadmin"
+        password: "changeme"  # Change this!
+        email: "admin@gitea.local"
+
+      # Gitea configuration (app.ini)
+      config:
+        # Server settings
+        server:
+          DOMAIN: gitea.local
+          ROOT_URL: https://gitea.local
+          SSH_DOMAIN: gitea.local
+          SSH_PORT: 22
+          DISABLE_SSH: false
+
+        # Database (PostgreSQL via sub-chart)
+        database:
+          DB_TYPE: postgres
+          HOST: gitea-postgresql:5432
+          NAME: gitea
+          USER: gitea
+          PASSWD: gitea  # Change this!
+
+        # Security
+        security:
+          INSTALL_LOCK: true
+          SECRET_KEY: "change-this-to-a-random-string"  # Change this!
+          INTERNAL_TOKEN: "change-this-to-a-random-string"  # Change this!
+
+        # Service settings
+        service:
+          DISABLE_REGISTRATION: false
+          REQUIRE_SIGNIN_VIEW: false
+          DEFAULT_KEEP_EMAIL_PRIVATE: true
+
+        # OAuth2 settings (for Authentik SSO)
+        openid:
+          ENABLE_OPENID_SIGNIN: true
+          ENABLE_OPENID_SIGNUP: true
+
+        # Actions (CI/CD)
+        actions:
+          ENABLED: true
+          DEFAULT_ACTIONS_URL: https://github.com
+
+        # Webhook settings
+        webhook:
+          ALLOWED_HOST_LIST: "*"
+
+    # Ingress with automatic TLS
+    ingress:
+      enabled: true
+      className: traefik
+      annotations:
+        cert-manager.io/cluster-issuer: step-ca
+      hosts:
+        - host: gitea.local
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: gitea-tls
+          hosts:
+            - gitea.local
+
+    # Persistence for Git repositories
+    persistence:
+      enabled: true
+      storageClass: longhorn
+      size: 20Gi
+      accessModes:
+        - ReadWriteOnce
+
+    # PostgreSQL database
+    postgresql-ha:
+      enabled: false
+
+    postgresql:
+      enabled: true
+      global:
+        postgresql:
+          auth:
+            username: gitea
+            password: gitea  # Change this!
+            database: gitea
+
+      primary:
+        persistence:
+          enabled: true
+          storageClass: longhorn
+          size: 10Gi
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+    # Resources for home server
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+    # Prometheus metrics
+    service:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+
+    # Gitea Actions runner (in-cluster)
+    # Uncomment to enable self-hosted Actions runner
+    # gitea-actions-runner:
+    #   enabled: true
+    #   replicas: 1
+    #   resources:
+    #     requests:
+    #       cpu: 100m
+    #       memory: 128Mi
+    #     limits:
+    #       cpu: 500m
+    #       memory: 256Mi
