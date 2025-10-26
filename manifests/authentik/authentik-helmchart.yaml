@@ -129,13 +129,16 @@ spec:
       configMaps:
         - authentik-blueprints
 
-    # Environment variables
-    env:
-      # Log level
-      AUTHENTIK_LOG_LEVEL: info
-
-      # Bootstrap settings
-      # These create an initial admin user
-      # AUTHENTIK_BOOTSTRAP_PASSWORD: "change-me"
-      # AUTHENTIK_BOOTSTRAP_TOKEN: "change-me-token"
-      # AUTHENTIK_BOOTSTRAP_EMAIL: "admin@authentik.local"
+    # Environment variables (using global.env array format)
+    global:
+      env:
+        - name: AUTHENTIK_LOG_LEVEL
+          value: info
+        # Bootstrap settings
+        # These create an initial admin user
+        # - name: AUTHENTIK_BOOTSTRAP_PASSWORD
+        #   value: "change-me"
+        # - name: AUTHENTIK_BOOTSTRAP_TOKEN
+        #   value: "change-me-token"
+        # - name: AUTHENTIK_BOOTSTRAP_EMAIL
+        #   value: "admin@authentik.local"
