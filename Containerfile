@@ -16,12 +16,13 @@ LABEL org.opencontainers.image.description="Immutable bootc image with k3s for h
 LABEL org.opencontainers.image.version="1.0.0"
 LABEL org.opencontainers.image.source="https://github.com/yourusername/nubita-bootc"
 
-# Install dependencies required for k3s
+# Install dependencies required for k3s and Longhorn
 RUN rpm-ostree install \
     curl \
     iptables \
     container-selinux \
     policycoreutils-python-utils \
+    iscsi-initiator-utils \
     && rpm-ostree cleanup -m
 
 # Install k3s-selinux policy for proper SELinux contexts
