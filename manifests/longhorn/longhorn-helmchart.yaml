@@ -41,8 +41,8 @@ spec:
       guaranteedReplicaManagerCPU: 5
 
       # Storage overprovisioning (percentage)
-      storageOverProvisioningPercentage: 200
-      storageMinimalAvailablePercentage: 10
+      storageOverProvisioningPercentage: "200"
+      storageMinimalAvailablePercentage: "10"
 
       # Upgrade settings
       upgradeChecker: true
