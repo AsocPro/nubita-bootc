@@ -21,10 +21,10 @@ spec:
       enabled: true
       configmaps: true
       secrets: true
-
-    # Inject configuration - minimal, let bootstrap handle the rest
-    inject:
-      enabled: false
+      # Enable ACME provisioner for cert-manager integration
+      provisioners:
+        - name: acme
+          type: ACME
 
     # Service configuration
     service:

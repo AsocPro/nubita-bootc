@@ -7,5 +7,14 @@ kind: ClusterIssuer
 metadata:
   name: step-ca
 spec:
-  ca:
-    secretName: step-certificates-ca-password
+  acme:
+    # Use step-ca's ACME server
+    server: https://step-certificates.step-ca.svc.cluster.local/acme/acme/directory
+    # Email for ACME registration (change as needed)
+    email: admin@nubita.local
+    privateKeySecretRef:
+      name: step-ca-acme-account
+    solvers:
+    - http01:
+        ingress:
+          class: traefik
