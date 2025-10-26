@@ -71,21 +71,16 @@ spec:
         webhook:
           ALLOWED_HOST_LIST: "*"
 
-    # Ingress with automatic TLS
+    # Ingress (HTTP only - TLS disabled)
     ingress:
       enabled: true
       className: traefik
-      annotations:
-        cert-manager.io/cluster-issuer: step-ca
+      # TLS disabled - see docs/TLS.md for future implementation
       hosts:
         - host: gitea.local
           paths:
             - path: /
               pathType: Prefix
-      tls:
-        - secretName: gitea-tls
-          hosts:
-            - gitea.local
 
     # Persistence for Git repositories
     persistence:

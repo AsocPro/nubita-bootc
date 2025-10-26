@@ -14,7 +14,16 @@ spec:
     email: admin@nubita.local
     privateKeySecretRef:
       name: step-ca-acme-account
+    # Skip TLS verification for internal CA
+    skipTLSVerify: true
+    # Disable self-check for .local domains that may not resolve in-cluster
+    disableAccountKeyGeneration: false
     solvers:
     - http01:
         ingress:
           class: traefik
+          podTemplate:
+            metadata:
+              annotations:
+                # Disable ingress self-check
+                "acme.cert-manager.io/http01-override-ingress-name": "true"

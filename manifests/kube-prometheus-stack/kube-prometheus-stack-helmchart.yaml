@@ -30,18 +30,13 @@ spec:
         accessModes:
           - ReadWriteOnce
 
-      # Ingress with automatic TLS
+      # Ingress (HTTP only - TLS disabled)
       ingress:
         enabled: true
         ingressClassName: traefik
-        annotations:
-          cert-manager.io/cluster-issuer: step-ca
+        # TLS disabled - see docs/TLS.md for future implementation
         hosts:
           - grafana.local
-        tls:
-          - secretName: grafana-tls
-            hosts:
-              - grafana.local
 
       # Resources for home server
       resources:
@@ -135,14 +130,9 @@ spec:
       ingress:
         enabled: true
         ingressClassName: traefik
-        annotations:
-          cert-manager.io/cluster-issuer: step-ca
+        # TLS disabled - see docs/TLS.md for future implementation
         hosts:
           - prometheus.local
-        tls:
-          - secretName: prometheus-tls
-            hosts:
-              - prometheus.local
 
     # Alertmanager configuration
     alertmanager:
@@ -168,18 +158,13 @@ spec:
             cpu: 50m
             memory: 128Mi
 
-      # Ingress for Alertmanager UI (optional)
+      # Ingress for Alertmanager UI (optional - HTTP only)
       ingress:
         enabled: true
         ingressClassName: traefik
-        annotations:
-          cert-manager.io/cluster-issuer: step-ca
+        # TLS disabled - see docs/TLS.md for future implementation
         hosts:
           - alertmanager.local
-        tls:
-          - secretName: alertmanager-tls
-            hosts:
-              - alertmanager.local
 
     # Prometheus Operator configuration
     prometheusOperator:

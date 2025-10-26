@@ -70,10 +70,9 @@ RUN mkdir -p /var/lib/rancher/k3s/server/manifests
 COPY manifests/longhorn/longhorn-helmchart.yaml /var/lib/rancher/k3s/server/manifests/longhorn.yaml
 COPY manifests/longhorn/backup-secret.yaml.example /etc/longhorn/backup-secret.yaml.example
 
-# Phase 3: cert-manager and step-ca for TLS
-COPY manifests/cert-manager/cert-manager-helmchart.yaml /var/lib/rancher/k3s/server/manifests/cert-manager.yaml
-COPY manifests/step-ca/step-ca-helmchart.yaml /var/lib/rancher/k3s/server/manifests/step-ca.yaml
-COPY manifests/step-ca/clusterissuer.yaml /var/lib/rancher/k3s/server/manifests/step-ca-clusterissuer.yaml
+# Phase 3: TLS (cert-manager and step-ca) - DISABLED
+# TLS manifests moved to manifests/tls/ for future implementation
+# See docs/TLS.md for implementation options
 
 # Phase 4: Prometheus and Grafana for monitoring
 COPY manifests/kube-prometheus-stack/kube-prometheus-stack-helmchart.yaml /var/lib/rancher/k3s/server/manifests/kube-prometheus-stack.yaml

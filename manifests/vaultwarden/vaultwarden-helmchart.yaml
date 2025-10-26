@@ -53,17 +53,12 @@ spec:
         # SSO only mode (users can only login via SSO)
         ssoOnly: false
 
-    # Ingress with automatic TLS
+    # Ingress (HTTP only - TLS disabled)
     ingress:
       enabled: true
       className: traefik
-      annotations:
-        cert-manager.io/cluster-issuer: step-ca
+      # TLS disabled - see docs/TLS.md for future implementation
       hostname: vaultwarden.local
-      tls:
-        - secretName: vaultwarden-tls
-          hosts:
-            - vaultwarden.local
 
     # Persistence for vault data
     persistence:
