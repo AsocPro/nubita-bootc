@@ -23,6 +23,10 @@ RUN rpm-ostree install \
     container-selinux \
     policycoreutils-python-utils \
     iscsi-initiator-utils \
+    nfs-utils \
+    cryptsetup \
+    device-mapper \
+    util-linux \
     && rpm-ostree cleanup -m
 
 # Install k3s-selinux policy for proper SELinux contexts
@@ -89,8 +93,9 @@ COPY manifests/vaultwarden/vaultwarden-helmchart.yaml /var/lib/rancher/k3s/serve
 # Copy systemd service file for k3s
 COPY systemd/k3s.service /etc/systemd/system/k3s.service
 
-# Enable k3s service
-RUN systemctl enable k3s.service
+# Enable k3s and iscsid services
+RUN systemctl enable k3s.service && \
+    systemctl enable iscsid.service
 
 # Optional: NVIDIA GPU support layer (uncomment for LLM/GPU workloads)
 # RUN rpm-ostree install \
