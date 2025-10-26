@@ -36,7 +36,8 @@ RUN curl -fsSL https://rpm.rancher.io/k3s/stable/common/coreos/noarch/k3s-selinu
     rm -f /tmp/k3s-selinux.rpm && \
     rpm-ostree cleanup -m
 
-# Create directory structure for k3s
+# Create directory structure for k3s and Longhorn
+# Consolidated to reduce layer count
 RUN mkdir -p /etc/rancher/k3s \
     && mkdir -p /var/lib/rancher/k3s \
     && mkdir -p /var/lib/longhorn
@@ -64,34 +65,26 @@ RUN ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/') && \
 # COPY custom-ca/*.crt /etc/pki/ca-trust/source/anchors/
 # RUN update-ca-trust
 
-# Copy k3s configuration
+# Create additional directories needed for manifests
+RUN mkdir -p /var/lib/rancher/k3s/server/manifests \
+    && mkdir -p /etc/longhorn \
+    && mkdir -p /etc/goss
+
+# Copy all k3s configuration and manifests in a single layer
+# This reduces layer count and improves build cache efficiency
 COPY config/k3s-config.yaml /etc/rancher/k3s/config.yaml
-
-# Copy k3s auto-deploy manifests (Helm charts, etc.)
-# k3s will automatically deploy these on startup
-RUN mkdir -p /var/lib/rancher/k3s/server/manifests
-
-# Phase 2: Longhorn storage
+COPY systemd/k3s.service /etc/systemd/system/k3s.service
 COPY manifests/longhorn/longhorn-helmchart.yaml /var/lib/rancher/k3s/server/manifests/longhorn.yaml
 COPY manifests/longhorn/backup-secret.yaml.example /etc/longhorn/backup-secret.yaml.example
+COPY manifests/kube-prometheus-stack/kube-prometheus-stack-helmchart.yaml /var/lib/rancher/k3s/server/manifests/kube-prometheus-stack.yaml
+COPY manifests/authentik/blueprint-configmap.yaml /var/lib/rancher/k3s/server/manifests/authentik-blueprints.yaml
+COPY manifests/authentik/authentik-helmchart.yaml /var/lib/rancher/k3s/server/manifests/authentik.yaml
+COPY manifests/gitea/gitea-helmchart.yaml /var/lib/rancher/k3s/server/manifests/gitea.yaml
+COPY manifests/vaultwarden/vaultwarden-helmchart.yaml /var/lib/rancher/k3s/server/manifests/vaultwarden.yaml
 
 # Phase 3: TLS (cert-manager and step-ca) - DISABLED
 # TLS manifests moved to manifests/tls/ for future implementation
 # See docs/TLS.md for implementation options
-
-# Phase 4: Prometheus and Grafana for monitoring
-COPY manifests/kube-prometheus-stack/kube-prometheus-stack-helmchart.yaml /var/lib/rancher/k3s/server/manifests/kube-prometheus-stack.yaml
-
-# Phase 5: Authentik for SSO/LDAP authentication
-COPY manifests/authentik/blueprint-configmap.yaml /var/lib/rancher/k3s/server/manifests/authentik-blueprints.yaml
-COPY manifests/authentik/authentik-helmchart.yaml /var/lib/rancher/k3s/server/manifests/authentik.yaml
-
-# Phase 6: Core applications with SSO
-COPY manifests/gitea/gitea-helmchart.yaml /var/lib/rancher/k3s/server/manifests/gitea.yaml
-COPY manifests/vaultwarden/vaultwarden-helmchart.yaml /var/lib/rancher/k3s/server/manifests/vaultwarden.yaml
-
-# Copy systemd service file for k3s
-COPY systemd/k3s.service /etc/systemd/system/k3s.service
 
 # Enable k3s and iscsid services
 RUN systemctl enable k3s.service && \
@@ -104,18 +97,17 @@ RUN systemctl enable k3s.service && \
 #     xorg-x11-drv-nvidia-cuda \
 #     && rpm-ostree cleanup -m
 
-# Ostree commit
-RUN ostree container commit
+# Create nubita user before ostree commit
+RUN useradd -p '$6$1THFQvSW9SO6Jj/a$.qI45pzj6WG6qyFC/PrUVqglOFWUivGNaF7ar7xHmKWWEjeSvgxXky5cRpZk3bH/qlYUiqisK8fioptcMOima0' nubita && \
+    usermod -a -G wheel nubita
 
-# Copy goss health check configuration
+# Copy health check files and set permissions in one layer
 COPY config/goss.yaml /etc/goss/goss.yaml
-
-# Copy health check script wrapper for goss
 COPY scripts/healthcheck.sh /usr/bin/healthcheck.sh
 RUN chmod +x /usr/bin/healthcheck.sh
 
-# Default k3s environment variables
-ENV KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+# Ostree commit (must be after all file operations)
+RUN ostree container commit
 
-RUN useradd  -p '$6$1THFQvSW9SO6Jj/a$.qI45pzj6WG6qyFC/PrUVqglOFWUivGNaF7ar7xHmKWWEjeSvgxXky5cRpZk3bH/qlYUiqisK8fioptcMOima0' nubita && \
-    usermod -a -G wheel nubita 
+# Default k3s environment variables
+ENV KUBECONFIG=/etc/rancher/k3s/k3s.yaml 
