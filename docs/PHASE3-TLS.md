@@ -100,7 +100,7 @@ sudo update-ca-trust
 
 ### cert-manager Settings
 
-Configured in `manifests/cert-manager/helmchart.yaml`:
+Configured in `manifests/cert-manager/cert-manager-helmchart.yaml`:
 
 - **CRDs**: Installed automatically
 - **Resources**: Minimal (suitable for home server)
@@ -109,7 +109,7 @@ Configured in `manifests/cert-manager/helmchart.yaml`:
 
 ### step-ca Settings
 
-Configured in `manifests/step-ca/helmchart.yaml`:
+Configured in `manifests/step-ca/step-ca-helmchart.yaml`:
 
 - **Root CA Validity**: 10 years
 - **Intermediate CA Validity**: 5 years

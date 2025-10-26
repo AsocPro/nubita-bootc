@@ -4,7 +4,7 @@ Phase 3: Kubernetes certificate controller for automatic TLS.
 
 ## Files
 
-- **helmchart.yaml**: k3s HelmChart manifest for cert-manager
+- **cert-manager-helmchart.yaml**: k3s HelmChart manifest for cert-manager
   - Installs cert-manager CRDs automatically
   - Minimal resource configuration
   - Prometheus metrics enabled

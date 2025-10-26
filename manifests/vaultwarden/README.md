@@ -4,7 +4,7 @@ Phase 6: Bitwarden-compatible password manager with SSO support.
 
 ## Files
 
-- **helmchart.yaml**: k3s HelmChart manifest for Vaultwarden
+- **vaultwarden-helmchart.yaml**: k3s HelmChart manifest for Vaultwarden
   - Vaultwarden server with SQLite database
   - 5Gi Longhorn volume for vault storage
   - Automatic HTTPS via step-ca
@@ -27,7 +27,7 @@ Vaultwarden is automatically deployed by k3s on boot. The HelmChart is copied to
 
 **Important**: Change these defaults before production use!
 
-Edit `helmchart.yaml`:
+Edit `vaultwarden-helmchart.yaml`:
 ```yaml
 vaultwarden:
   adminToken: "CHANGE-ME-TO-RANDOM-TOKEN"  # Change this!
@@ -102,13 +102,13 @@ Access admin panel at:
 https://vaultwarden.local/admin
 ```
 
-Use the `adminToken` configured in `helmchart.yaml`.
+Use the `adminToken` configured in `vaultwarden-helmchart.yaml`.
 
 ## Email Configuration (Optional)
 
 To enable email for password reset and notifications:
 
-Edit `helmchart.yaml`:
+Edit `vaultwarden-helmchart.yaml`:
 ```yaml
 vaultwarden:
   smtp:

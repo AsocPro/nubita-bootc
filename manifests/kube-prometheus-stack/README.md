@@ -4,7 +4,7 @@ Phase 4: Complete monitoring stack with Prometheus, Grafana, and Alertmanager.
 
 ## Files
 
-- **helmchart.yaml**: k3s HelmChart manifest for kube-prometheus-stack
+- **kube-prometheus-stack-helmchart.yaml**: k3s HelmChart manifest for kube-prometheus-stack
   - Prometheus for metrics collection
   - Grafana for visualization
   - Alertmanager for alerting

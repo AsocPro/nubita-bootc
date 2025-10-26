@@ -54,7 +54,7 @@ k3s has a built-in Helm controller that automatically deploys HelmChart CRDs pla
 
 ### Basic Settings
 
-The Longhorn configuration is embedded in `manifests/longhorn/helmchart.yaml` and is minimal, optimized for single-node operation:
+The Longhorn configuration is embedded in `manifests/longhorn/longhorn-helmchart.yaml` and is minimal, optimized for single-node operation:
 
 - **Single replica**: Perfect for single-node clusters
 - **Storage overprovisioning**: 200% (allows flexible volume creation)
@@ -63,7 +63,7 @@ The Longhorn configuration is embedded in `manifests/longhorn/helmchart.yaml` an
 
 ### Modifying Configuration
 
-To change Longhorn settings, edit `manifests/longhorn/helmchart.yaml` and rebuild the bootc image. The new configuration will be applied on next deployment.
+To change Longhorn settings, edit `manifests/longhorn/longhorn-helmchart.yaml` and rebuild the bootc image. The new configuration will be applied on next deployment.
 
 ### Backup Configuration (Optional)
 
@@ -87,7 +87,7 @@ kubectl apply -f backup-secret.yaml
 
 #### Step 3: Update helmchart.yaml
 
-Edit `manifests/longhorn/helmchart.yaml` and uncomment the backup settings:
+Edit `manifests/longhorn/longhorn-helmchart.yaml` and uncomment the backup settings:
 
 ```yaml
 defaultSettings:

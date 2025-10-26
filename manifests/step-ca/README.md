@@ -4,7 +4,7 @@ Phase 3: Internal Certificate Authority for automatic TLS certificates.
 
 ## Files
 
-- **helmchart.yaml**: k3s HelmChart manifest for step-certificates
+- **step-ca-helmchart.yaml**: k3s HelmChart manifest for step-certificates
   - Auto-generates CA certificates on first run
   - Configures internal CA with sensible defaults
   - Persists CA data to Longhorn storage

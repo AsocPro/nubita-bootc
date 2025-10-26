@@ -67,24 +67,24 @@ COPY config/k3s-config.yaml /etc/rancher/k3s/config.yaml
 RUN mkdir -p /var/lib/rancher/k3s/server/manifests
 
 # Phase 2: Longhorn storage
-COPY manifests/longhorn/helmchart.yaml /var/lib/rancher/k3s/server/manifests/longhorn.yaml
+COPY manifests/longhorn/longhorn-helmchart.yaml /var/lib/rancher/k3s/server/manifests/longhorn.yaml
 COPY manifests/longhorn/backup-secret.yaml.example /etc/longhorn/backup-secret.yaml.example
 
 # Phase 3: cert-manager and step-ca for TLS
-COPY manifests/cert-manager/helmchart.yaml /var/lib/rancher/k3s/server/manifests/cert-manager.yaml
-COPY manifests/step-ca/helmchart.yaml /var/lib/rancher/k3s/server/manifests/step-ca.yaml
+COPY manifests/cert-manager/cert-manager-helmchart.yaml /var/lib/rancher/k3s/server/manifests/cert-manager.yaml
+COPY manifests/step-ca/step-ca-helmchart.yaml /var/lib/rancher/k3s/server/manifests/step-ca.yaml
 COPY manifests/step-ca/clusterissuer.yaml /var/lib/rancher/k3s/server/manifests/step-ca-clusterissuer.yaml
 
 # Phase 4: Prometheus and Grafana for monitoring
-COPY manifests/kube-prometheus-stack/helmchart.yaml /var/lib/rancher/k3s/server/manifests/kube-prometheus-stack.yaml
+COPY manifests/kube-prometheus-stack/kube-prometheus-stack-helmchart.yaml /var/lib/rancher/k3s/server/manifests/kube-prometheus-stack.yaml
 
 # Phase 5: Authentik for SSO/LDAP authentication
 COPY manifests/authentik/blueprint-configmap.yaml /var/lib/rancher/k3s/server/manifests/authentik-blueprints.yaml
-COPY manifests/authentik/helmchart.yaml /var/lib/rancher/k3s/server/manifests/authentik.yaml
+COPY manifests/authentik/authentik-helmchart.yaml /var/lib/rancher/k3s/server/manifests/authentik.yaml
 
 # Phase 6: Core applications with SSO
-COPY manifests/gitea/helmchart.yaml /var/lib/rancher/k3s/server/manifests/gitea.yaml
-COPY manifests/vaultwarden/helmchart.yaml /var/lib/rancher/k3s/server/manifests/vaultwarden.yaml
+COPY manifests/gitea/gitea-helmchart.yaml /var/lib/rancher/k3s/server/manifests/gitea.yaml
+COPY manifests/vaultwarden/vaultwarden-helmchart.yaml /var/lib/rancher/k3s/server/manifests/vaultwarden.yaml
 
 # Copy systemd service file for k3s
 COPY systemd/k3s.service /etc/systemd/system/k3s.service

@@ -89,7 +89,7 @@ Grafana comes pre-loaded with dashboards for:
 
 ### Grafana Settings
 
-Configured in `manifests/kube-prometheus-stack/helmchart.yaml`:
+Configured in `manifests/kube-prometheus-stack/kube-prometheus-stack-helmchart.yaml`:
 
 - **Admin Password**: `admin` (change this!)
 - **Persistence**: 5Gi Longhorn volume

@@ -107,7 +107,7 @@ Users can now sign in with Authentik!
 
 #### Step 3: Security Configuration
 
-**Important**: Change default passwords in `manifests/gitea/helmchart.yaml`:
+**Important**: Change default passwords in `manifests/gitea/gitea-helmchart.yaml`:
 
 ```yaml
 gitea:
@@ -144,7 +144,7 @@ Then rebuild the bootc image.
 
 #### Step 2: Update Vaultwarden Configuration
 
-Edit `manifests/vaultwarden/helmchart.yaml` and replace the placeholder:
+Edit `manifests/vaultwarden/vaultwarden-helmchart.yaml` and replace the placeholder:
 
 ```yaml
 vaultwarden:
@@ -173,7 +173,7 @@ kubectl edit helmchart vaultwarden -n kube-system
 
 #### Step 4: Security Configuration
 
-**Important**: Change default admin token in `manifests/vaultwarden/helmchart.yaml`:
+**Important**: Change default admin token in `manifests/vaultwarden/vaultwarden-helmchart.yaml`:
 
 ```yaml
 vaultwarden:
@@ -204,7 +204,7 @@ Alternatively, create a local account (if `signupsAllowed: true`):
 
 ### Gitea Settings
 
-Configured in `manifests/gitea/helmchart.yaml`:
+Configured in `manifests/gitea/gitea-helmchart.yaml`:
 
 - **Namespace**: `gitea`
 - **URL**: `https://gitea.local`
@@ -215,7 +215,7 @@ Configured in `manifests/gitea/helmchart.yaml`:
 
 ### Vaultwarden Settings
 
-Configured in `manifests/vaultwarden/helmchart.yaml`:
+Configured in `manifests/vaultwarden/vaultwarden-helmchart.yaml`:
 
 - **Namespace**: `vaultwarden`
 - **URL**: `https://vaultwarden.local`
@@ -309,7 +309,7 @@ jobs:
         run: make test
 ```
 
-**Note**: By default, Gitea uses external runners (GitHub Actions runners). To use in-cluster runners, uncomment the `gitea-actions-runner` section in `manifests/gitea/helmchart.yaml`.
+**Note**: By default, Gitea uses external runners (GitHub Actions runners). To use in-cluster runners, uncomment the `gitea-actions-runner` section in `manifests/gitea/gitea-helmchart.yaml`.
 
 ### SSH Access
 
@@ -362,13 +362,13 @@ Access Vaultwarden admin panel at:
 https://vaultwarden.local/admin
 ```
 
-Use the `adminToken` configured in `manifests/vaultwarden/helmchart.yaml`.
+Use the `adminToken` configured in `manifests/vaultwarden/vaultwarden-helmchart.yaml`.
 
 ## Email Configuration (Optional)
 
 ### Gitea Email
 
-Edit `manifests/gitea/helmchart.yaml`:
+Edit `manifests/gitea/gitea-helmchart.yaml`:
 
 ```yaml
 gitea:
@@ -384,7 +384,7 @@ gitea:
 
 ### Vaultwarden Email
 
-Edit `manifests/vaultwarden/helmchart.yaml`:
+Edit `manifests/vaultwarden/vaultwarden-helmchart.yaml`:
 
 ```yaml
 vaultwarden:
@@ -516,7 +516,7 @@ kubectl -n vaultwarden cp vaultwarden-pod:/data/backup.sqlite3 ./vaultwarden-bac
 
 ### Gitea Actions with In-Cluster Runner
 
-Uncomment in `manifests/gitea/helmchart.yaml`:
+Uncomment in `manifests/gitea/gitea-helmchart.yaml`:
 
 ```yaml
 gitea-actions-runner:
@@ -530,7 +530,7 @@ This deploys a self-hosted Actions runner within the cluster.
 
 For better performance with many users, switch to PostgreSQL.
 
-Edit `manifests/vaultwarden/helmchart.yaml`:
+Edit `manifests/vaultwarden/vaultwarden-helmchart.yaml`:
 
 ```yaml
 database:

@@ -4,8 +4,8 @@ Phase 2: Distributed block storage with automatic deployment via k3s Helm contro
 
 ## Files
 
-- **helmchart.yaml**: k3s HelmChart manifest (auto-deployed by k3s)
-- **values.yaml**: Reference Helm values (deprecated - use helmchart.yaml)
+- **longhorn-helmchart.yaml**: k3s HelmChart manifest (auto-deployed by k3s)
+- **values.yaml**: Reference Helm values (deprecated - use longhorn-helmchart.yaml)
 - **backup-secret.yaml.example**: Template for S3 backup credentials
 - **test-pvc.yaml**: Test PVC and pod to verify Longhorn works
 
@@ -13,7 +13,7 @@ Phase 2: Distributed block storage with automatic deployment via k3s Helm contro
 
 **No deployment needed!** Longhorn is automatically deployed by k3s when the system boots.
 
-The `helmchart.yaml` is copied to `/var/lib/rancher/k3s/server/manifests/longhorn.yaml` in the bootc image, and k3s's Helm controller deploys it automatically.
+The `longhorn-helmchart.yaml` is copied to `/var/lib/rancher/k3s/server/manifests/longhorn.yaml` in the bootc image, and k3s's Helm controller deploys it automatically.
 
 ## Configuration
 
@@ -33,14 +33,14 @@ The `helmchart.yaml` is copied to `/var/lib/rancher/k3s/server/manifests/longhor
    kubectl apply -f backup-secret.yaml
    ```
 
-2. Uncomment backup settings in `helmchart.yaml`:
+2. Uncomment backup settings in `longhorn-helmchart.yaml`:
    ```yaml
    backupTarget: s3://bucket@region/
    backupTargetCredentialSecret: longhorn-backup-secret
    ```
 
 3. Either:
-   - **Rebuild bootc image** with updated helmchart.yaml, OR
+   - **Rebuild bootc image** with updated longhorn-helmchart.yaml, OR
    - **Live update**: `kubectl edit helmchart longhorn -n kube-system`
 
 ## Testing

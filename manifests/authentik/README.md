@@ -4,7 +4,7 @@ Phase 5: SSO and authentication provider with OIDC/LDAP support.
 
 ## Files
 
-- **helmchart.yaml**: k3s HelmChart manifest for Authentik
+- **authentik-helmchart.yaml**: k3s HelmChart manifest for Authentik
   - Authentik server and worker
   - PostgreSQL database with Longhorn storage
   - Redis cache with Longhorn storage
@@ -25,7 +25,7 @@ Authentik is automatically deployed by k3s on boot. The HelmChart is copied to `
 
 **Important**: Change these defaults before production use!
 
-Edit `helmchart.yaml`:
+Edit `authentik-helmchart.yaml`:
 ```yaml
 authentik:
   secret_key: "CHANGE-ME-TO-A-RANDOM-STRING"

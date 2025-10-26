@@ -81,7 +81,7 @@ On first access, Authentik will show a setup wizard:
 
 ### Security Recommendations
 
-**Important**: Change default passwords in `manifests/authentik/helmchart.yaml`:
+**Important**: Change default passwords in `manifests/authentik/authentik-helmchart.yaml`:
 
 ```yaml
 authentik:
@@ -117,7 +117,7 @@ The OAuth provider and application are created automatically on first boot. To g
 
 ### Step 2: Update Grafana Configuration
 
-Edit `manifests/kube-prometheus-stack/helmchart.yaml` and replace the placeholder:
+Edit `manifests/kube-prometheus-stack/kube-prometheus-stack-helmchart.yaml` and replace the placeholder:
 
 ```yaml
 grafana:
@@ -223,7 +223,7 @@ ldap:
 
 To enable password reset and notifications, configure email:
 
-Edit `manifests/authentik/helmchart.yaml`:
+Edit `manifests/authentik/authentik-helmchart.yaml`:
 
 ```yaml
 authentik:
@@ -245,7 +245,7 @@ For Gmail:
 
 ### Authentik Settings
 
-Configured in `manifests/authentik/helmchart.yaml`:
+Configured in `manifests/authentik/authentik-helmchart.yaml`:
 
 - **Namespace**: `authentik`
 - **URL**: `https://authentik.local`

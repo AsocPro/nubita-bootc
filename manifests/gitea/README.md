@@ -4,7 +4,7 @@ Phase 6: Self-hosted Git service with Actions and SSO support.
 
 ## Files
 
-- **helmchart.yaml**: k3s HelmChart manifest for Gitea
+- **gitea-helmchart.yaml**: k3s HelmChart manifest for Gitea
   - Gitea server with PostgreSQL database
   - 20Gi Longhorn volume for repositories
   - 10Gi Longhorn volume for PostgreSQL
@@ -28,7 +28,7 @@ Gitea is automatically deployed by k3s on boot. The HelmChart is copied to `/var
 
 **Important**: Change these defaults before production use!
 
-Edit `helmchart.yaml`:
+Edit `gitea-helmchart.yaml`:
 ```yaml
 gitea:
   admin:
