@@ -65,26 +65,16 @@ RUN ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/') && \
 # COPY custom-ca/*.crt /etc/pki/ca-trust/source/anchors/
 # RUN update-ca-trust
 
-# Create additional directories needed for manifests
-RUN mkdir -p /var/lib/rancher/k3s/server/manifests \
-    && mkdir -p /etc/longhorn \
-    && mkdir -p /etc/goss
+# Create additional directories needed for configuration
+RUN mkdir -p /etc/longhorn && mkdir -p /etc/goss
 
 # Copy all k3s configuration and manifests in a single layer
-# This reduces layer count and improves build cache efficiency
+# k3s supports nested directories - copy entire manifests/ directory
+# Non-YAML files (README.md, etc.) are ignored by k3s
 COPY config/k3s-config.yaml /etc/rancher/k3s/config.yaml
 COPY systemd/k3s.service /etc/systemd/system/k3s.service
-COPY manifests/longhorn/longhorn-helmchart.yaml /var/lib/rancher/k3s/server/manifests/longhorn.yaml
+COPY manifests/ /var/lib/rancher/k3s/server/manifests/
 COPY manifests/longhorn/backup-secret.yaml.example /etc/longhorn/backup-secret.yaml.example
-COPY manifests/kube-prometheus-stack/kube-prometheus-stack-helmchart.yaml /var/lib/rancher/k3s/server/manifests/kube-prometheus-stack.yaml
-COPY manifests/authentik/blueprint-configmap.yaml /var/lib/rancher/k3s/server/manifests/authentik-blueprints.yaml
-COPY manifests/authentik/authentik-helmchart.yaml /var/lib/rancher/k3s/server/manifests/authentik.yaml
-COPY manifests/gitea/gitea-helmchart.yaml /var/lib/rancher/k3s/server/manifests/gitea.yaml
-COPY manifests/vaultwarden/vaultwarden-helmchart.yaml /var/lib/rancher/k3s/server/manifests/vaultwarden.yaml
-
-# Phase 3: TLS (cert-manager and step-ca) - DISABLED
-# TLS manifests moved to manifests/tls/ for future implementation
-# See docs/TLS.md for implementation options
 
 # Enable k3s and iscsid services
 RUN systemctl enable k3s.service && \
