@@ -59,10 +59,7 @@ spec:
         ingressClassName: traefik
         # TLS disabled - see docs/TLS.md for future implementation
         hosts:
-          - host: authentik.local
-            paths:
-              - path: /
-                pathType: Prefix
+          - authentik.local
 
     # Worker deployment (background tasks)
     worker:
