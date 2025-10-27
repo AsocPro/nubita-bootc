@@ -118,10 +118,11 @@ spec:
             memory: 128Mi
 
     # Prometheus metrics
-    prometheus:
-      serviceMonitor:
-        enabled: true
-        interval: 30s
+    server:
+      metrics:
+        serviceMonitor:
+          enabled: true
+          interval: 30s
 
     # Blueprints for automatic configuration
     blueprints:
