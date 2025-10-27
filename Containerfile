@@ -76,9 +76,10 @@ COPY systemd/k3s.service /etc/systemd/system/k3s.service
 COPY manifests/ /var/lib/rancher/k3s/server/manifests/
 COPY manifests/longhorn/backup-secret.yaml.example /etc/longhorn/backup-secret.yaml.example
 
-# Enable k3s and iscsid services
+# Enable k3s and iscsid services, disable firewalld (conflicts with k3s networking)
 RUN systemctl enable k3s.service && \
-    systemctl enable iscsid.service
+    systemctl enable iscsid.service && \
+    systemctl disable firewalld.service || true
 
 # Optional: NVIDIA GPU support layer (uncomment for LLM/GPU workloads)
 # RUN rpm-ostree install \
