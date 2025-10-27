@@ -10,6 +10,7 @@ Phase 4: Complete monitoring stack with Prometheus, Grafana, and Alertmanager.
   - Alertmanager for alerting
   - Node Exporter and kube-state-metrics
   - All with automatic HTTPS via step-ca
+- **grafana-oauth-secret.yaml.example**: Template for Grafana OAuth secret (copy to grafana-oauth-secret.yaml)
 
 ## Auto-Deployment
 
@@ -22,6 +23,36 @@ The monitoring stack is automatically deployed by k3s on boot. The HelmChart is 
 - **Prometheus URL**: `https://prometheus.local`
 - **Alertmanager URL**: `https://alertmanager.local`
 - **Default Credentials**: admin / admin (change on first login!)
+
+### OAuth Setup (Authentik Integration)
+
+To enable Authentik SSO for Grafana:
+
+1. **Copy the secret template**:
+   ```bash
+   cp manifests/kube-prometheus-stack/grafana-oauth-secret.yaml.example \
+      manifests/kube-prometheus-stack/grafana-oauth-secret.yaml
+   ```
+
+2. **Get the client secret from Authentik**:
+   - After Authentik is deployed, log into https://authentik.local
+   - Navigate to: Applications → Providers → Grafana
+   - Click "View" to see the auto-generated client secret
+
+3. **Update the secret file**:
+   ```bash
+   vim manifests/kube-prometheus-stack/grafana-oauth-secret.yaml
+   # Replace AUTHENTIK_CLIENT_SECRET_HERE with the actual value
+   ```
+
+4. **Rebuild the bootc image** (the secret is deployed automatically on boot):
+   ```bash
+   ./scripts/build.sh
+   sudo bootc switch --transport=oci localhost/nubita-bootc:latest
+   sudo systemctl reboot
+   ```
+
+**Note**: The secret file is automatically gitignored to prevent committing sensitive data.
 
 ### Storage
 

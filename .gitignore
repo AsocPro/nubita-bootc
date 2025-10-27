@@ -18,6 +18,8 @@ secrets/
 *.pem
 **/backup-secret.yaml
 !**/backup-secret.yaml.example
+**/grafana-oauth-secret.yaml
+!**/grafana-oauth-secret.yaml.example
 
 # Container runtime
 .buildah/

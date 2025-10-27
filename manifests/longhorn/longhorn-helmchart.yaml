@@ -75,7 +75,7 @@ spec:
     # Ingress for Longhorn UI (HTTP only - TLS disabled)
     ingress:
       enabled: true
-      host: longhorn.local
+      host: longhorn-ui.local
       ingressClassName: traefik
       # TLS disabled - see docs/TLS.md for future implementation
       tls: false

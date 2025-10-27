@@ -69,8 +69,16 @@ spec:
 
       # Authentik OAuth integration (Phase 5)
       # OAuth provider is auto-configured via Authentik blueprint
-      # Replace AUTHENTIK_CLIENT_SECRET with the value from:
-      # Authentik UI → Applications → Providers → Grafana → View Client Secret
+      # Client secret is stored in grafana-oauth-secret and injected via env var
+      # See: manifests/kube-prometheus-stack/grafana-oauth-secret.yaml.example
+
+      # Inject OAuth client secret from Kubernetes Secret
+      envValueFrom:
+        GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET:
+          secretKeyRef:
+            name: grafana-oauth-secret
+            key: client_secret
+
       grafana.ini:
         server:
           root_url: https://grafana.local
@@ -78,7 +86,7 @@ spec:
           enabled: true
           name: Authentik
           client_id: grafana
-          client_secret: "AUTHENTIK_CLIENT_SECRET"
+          client_secret: $GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET
           scopes: openid profile email
           auth_url: https://authentik.local/application/o/authorize/
           token_url: https://authentik.local/application/o/token/
