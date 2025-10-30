@@ -2,7 +2,7 @@
 
 An immutable, bootc-based OS image hosting a k3s Kubernetes cluster for home server use. Designed to be modular, maintainable, and expandable from single-node to multi-node with future NVIDIA/LLM support.
 
- * Currently not anywhere near stable. In thr bringing all the ideas together phase. *
+**Currently not anywhere near stable. In thr bringing all the ideas together phase. **
 
 ## Features
 
